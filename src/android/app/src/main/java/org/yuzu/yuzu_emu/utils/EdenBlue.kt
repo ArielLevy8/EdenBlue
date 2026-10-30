@@ -15,7 +15,6 @@ import org.yuzu.yuzu_emu.YuzuApplication
 import org.yuzu.yuzu_emu.features.settings.model.BooleanSetting
 import org.yuzu.yuzu_emu.features.settings.model.IntSetting
 import org.yuzu.yuzu_emu.features.settings.model.ShortSetting
-import org.yuzu.yuzu_emu.model.DriverViewModel
 import java.io.File
 import java.io.FileOutputStream
 import java.io.IOException
@@ -177,14 +176,13 @@ object DeviceTuning {
         throw IOException("No driver matching " + source.assetHint + " in " + source.repository)
     }
 
-    /** Downloads [release], installs it into the driver store and selects it. Returns the driver name. */
+    /** Downloads [release] into the driver store. Returns its path and metadata for selection. */
     @Throws(IOException::class)
     fun downloadAndInstallDriver(
         context: Context,
         client: OkHttpClient,
-        release: DriverRelease,
-        driverViewModel: DriverViewModel
-    ): String {
+        release: DriverRelease
+    ): Pair<String, GpuDriverMetadata> {
         val cacheDir = context.externalCacheDir ?: context.cacheDir
         cacheDir.mkdirs()
         val file = File(cacheDir, release.name)
@@ -215,10 +213,8 @@ object DeviceTuning {
         if (!GpuDriverHelper.copyDriverToInternalStorage(file.toUri())) {
             throw IOException("Failed to copy driver into internal storage")
         }
-        driverViewModel.onDriverAdded(Pair(driverPath, metadata))
-        NativeConfig.saveGlobalConfig()
         file.delete()
-        return metadata.name ?: release.name
+        return Pair(driverPath, metadata)
     }
 }
 

@@ -14,7 +14,7 @@ namespace Vulkan {
 
 namespace {
 
-constexpr u32 MOTION_BLOCK_SIZE = 8;
+constexpr u32 MOTION_BLOCK_SIZE = 16;
 constexpr u32 MOTION_GROUP_SIZE = 8;
 constexpr u32 GENERATE_GROUP_SIZE = 16;
 constexpr u32 MOTION_DESCRIPTOR_SETS = 2;

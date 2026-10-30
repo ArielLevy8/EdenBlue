@@ -963,6 +963,14 @@ constexpr u32 MAX_FRAME_GEN_MULTIPLIER = 4;
 
 [[nodiscard]] size_t FrameGenMaxGenerations();
 
+/// Refresh rate of the display, set by the frontend. Built-in frame generation paces against it.
+void SetFrameGenDisplayRate(f32 rate);
+[[nodiscard]] f32 FrameGenDisplayRate();
+
+/// How many frames were generated for the last rendered frame, for the performance overlay.
+void SetFrameGenActiveGenerations(size_t generations);
+[[nodiscard]] size_t FrameGenActiveGenerations();
+
 bool GetDebugKnobAt(u8 i);
 
 void UpdateGPUAccuracy();

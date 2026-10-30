@@ -29,8 +29,7 @@ class ContentTypeSelectionDialogFragment : DialogFragment() {
         val launchOptions = arrayOf(
             getString(R.string.updates_and_dlc),
             getString(R.string.mods_and_cheats),
-            getString(R.string.mod_install_from_zip),
-            getString(R.string.mod_install_browse_online)
+            getString(R.string.mod_install_from_zip)
         )
 
         if (savedInstanceState != null) {
@@ -47,10 +46,6 @@ class ContentTypeSelectionDialogFragment : DialogFragment() {
                     )
                     2 -> parentFragmentManager.setFragmentResult(
                         REQUEST_INSTALL_MOD_ZIP,
-                        Bundle()
-                    )
-                    3 -> parentFragmentManager.setFragmentResult(
-                        REQUEST_OPEN_MOD_BROWSER,
                         Bundle()
                     )
                     else -> {
@@ -79,7 +74,6 @@ class ContentTypeSelectionDialogFragment : DialogFragment() {
         const val TAG = "ContentTypeSelectionDialogFragment"
         const val REQUEST_INSTALL_GAME_UPDATE = "RequestInstallGameUpdate"
         const val REQUEST_INSTALL_MOD_ZIP = "RequestInstallModZip"
-        const val REQUEST_OPEN_MOD_BROWSER = "RequestOpenModBrowser"
 
         private const val SELECTED_ITEM = "SelectedItem"
         private const val MOD_NOTICE_SEEN = "ModNoticeSeen"

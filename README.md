@@ -26,19 +26,12 @@ import tool, a mod browser and a darker blue look. It installs next to regular E
 |---|---|
 | Snapdragon 865, 870, 888 | `EdenBlue-<version>-legacy.apk` |
 | Snapdragon 7+ Gen 2, 8 Gen 1 and newer | `EdenBlue-<version>-modern.apk` |
-| Windows PC | `EdenBlue-<version>-windows-x64.zip` |
-| Mac with Apple Silicon | `EdenBlue-<version>-macos-arm64.zip` |
 
 The legacy build carries Eden's patches for older Adreno GPUs, which cost some performance on
 newer chips. Both APKs need Android 10 or newer on arm64. None of these builds have been tested on
 real hardware yet, so reports are welcome.
 
-The Windows and Mac builds are the standard Eden desktop app under the EdenBlue name. The features
-below are Android only.
-
-The Mac app is not notarized, so macOS will block it the first time. Right-click it and choose Open,
-or allow it under System Settings > Privacy & Security. Eden describes macOS support as largely
-untested, so expect crashes and Vulkan problems.
+Windows and Mac builds are not released yet.
 
 ## What EdenBlue adds
 
@@ -47,9 +40,8 @@ untested, so expect crashes and Vulkan problems.
 | **Boot to home menu** (off by default). Optionally open straight into the Switch home menu (QLaunch). | Settings → EdenBlue |
 | **Return to home menu** after a game exits (off by default). | Settings → EdenBlue |
 | **Device tuning**: pick your chip (the detected one is preselected) to apply a settings preset for your GPU generation and install the driver Eden recommends for that GPU. Covers Snapdragon 865 through 8 Elite Gen 5. These are rule-based presets, not machine learning. | Settings home, Settings → EdenBlue, first-run setup |
-| **Built-in frame generation**: motion-compensated interpolation that needs no Lossless.dll. It is classical block matching, not a neural network, so HUDs and fast motion can ghost. Lossless Scaling stays selectable. | Settings → Frame generation, in-game quick settings |
+| **Built-in frame generation**: motion-compensated interpolation that needs no Lossless.dll. It only adds frames when your screen has room for them, and the FPS counter shows both numbers, for example `FPS: 60 (30 real)`. It is classical block matching, not a neural network, so HUDs and fast motion can ghost. Lossless Scaling stays selectable. | Settings → Frame generation, in-game quick settings |
 | **Import games**: moves `.nsp` and `.xci` files you already have, or ZIPs containing them, into your ROMs folder. Originals are only removed after a full copy. | Settings home |
-| **Mod browser**: downloads the **Ultrawide & FPS mods** collection (`Fl4sh9174/Switch-Emulator-Ultrawide-FPS-Mods`) from GitHub and installs each one into the right game's `load/` folder, matched by title ID. | Settings home, game → Mod browser, game → Add-ons → Install |
 | **Install mods from ZIP**: pick any mod ZIP (nested folders are handled) and it lands in the game's `load/` folder. | game → Add-ons → Install → Mods (ZIP file) |
 | QLaunch button shown by default, dark blue theme, blue launcher and splash icons. | |
 
@@ -86,9 +78,8 @@ cd EdenBlue
 The APK is written to `artifacts/`. Set `EDENBLUE_VARIANT=modern` to build without the legacy
 patches.
 
-CI: pushing an `edenblue-*` tag runs `.github/workflows/edenblue-android.yml` and
-`edenblue-windows.yml`, which attach both APKs and the Windows zip to a GitHub release. The Mac
-build in `edenblue-macos.yml` is started by hand.
+CI: pushing an `edenblue-*` tag runs `.github/workflows/edenblue-android.yml`, which attaches both
+APKs to a GitHub release. The Windows and Mac workflows are started by hand.
 
 ## Upstream
 

@@ -265,20 +265,6 @@ class HomeSettingsFragment : Fragment() {
             )
             add(
                 HomeSetting(
-                    R.string.mod_browser,
-                    R.string.mod_browser_description,
-                    R.drawable.ic_edit,
-                    {
-                        val action = HomeNavigationDirections.actionGlobalSettingsSubscreenActivity(
-                            SettingsSubscreen.MOD_FETCHER,
-                            null
-                        )
-                        binding.root.findNavController().navigate(action)
-                    }
-                )
-            )
-            add(
-                HomeSetting(
                     R.string.post_processing,
                     R.string.post_processing_description,
                     R.drawable.ic_post_processing,

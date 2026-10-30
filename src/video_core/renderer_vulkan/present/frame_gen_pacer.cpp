@@ -69,7 +69,12 @@ FrameGenPlan FrameGenPacer::Plan(size_t capacity) {
         return {};
     }
 
-    const f32 target_rate = static_cast<f32>(Settings::values.frame_gen_target_rate.GetValue());
+    // A fixed multiplier on a vsynced display trades real frames for generated ones, so built-in
+    // frame generation only fills the gap between the game's rate and the display's.
+    f32 target_rate = static_cast<f32>(Settings::values.frame_gen_target_rate.GetValue());
+    if (target_rate == 0.0f && Settings::values.frame_gen_builtin.GetValue()) {
+        target_rate = Settings::FrameGenDisplayRate();
+    }
 
     if (smoothed_interval > 0.0f) {
         f32 burst_threshold = BURST_CADENCE_RATIO / smoothed_interval;

@@ -4,6 +4,7 @@
 // SPDX-FileCopyrightText: Copyright 2021 yuzu Emulator Project
 // SPDX-License-Identifier: GPL-2.0-or-later
 
+#include <atomic>
 #include <version>
 #if __cpp_lib_chrono >= 201907L
 #include <chrono>
@@ -384,6 +385,29 @@ size_t FrameGenGenerations() {
         return 0;
     }
     return FrameGenMultiplier() - 1;
+}
+
+namespace {
+std::atomic<f32> frame_gen_display_rate{60.0f};
+std::atomic<size_t> frame_gen_active_generations{0};
+} // Anonymous namespace
+
+void SetFrameGenDisplayRate(f32 rate) {
+    if (rate > 0.0f) {
+        frame_gen_display_rate.store(rate, std::memory_order_relaxed);
+    }
+}
+
+f32 FrameGenDisplayRate() {
+    return frame_gen_display_rate.load(std::memory_order_relaxed);
+}
+
+void SetFrameGenActiveGenerations(size_t generations) {
+    frame_gen_active_generations.store(generations, std::memory_order_relaxed);
+}
+
+size_t FrameGenActiveGenerations() {
+    return frame_gen_active_generations.load(std::memory_order_relaxed);
 }
 
 size_t FrameGenMaxGenerations() {

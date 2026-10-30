@@ -3,8 +3,6 @@
 
 package org.yuzu.yuzu_emu.utils
 
-import androidx.core.content.edit
-import androidx.preference.PreferenceManager
 import org.yuzu.yuzu_emu.YuzuApplication
 import java.io.File
 import java.io.IOException
@@ -12,30 +10,12 @@ import java.util.zip.ZipInputStream
 
 /** Installs mod ZIPs into the load directory. */
 object ModInstaller {
-    private const val PREF_INSTALLED_PACKAGES = "EdenBlueInstalledModPackages"
     private const val MAX_SEARCH_DEPTH = 4
-
-    private val titleIdRegex = Regex("(?<![0-9A-Fa-f])([0-9A-Fa-f]{16})(?![0-9A-Fa-f])")
 
     private val modRootMarkers = AddonUtil.validAddonDirectories
 
-    private val preferences
-        get() = PreferenceManager.getDefaultSharedPreferences(YuzuApplication.appContext)
-
-    /** Extracts a 16 digit title ID from a package or file name, if present. */
-    fun titleIdFromName(name: String): String? =
-        titleIdRegex.find(name)?.groupValues?.get(1)?.uppercase()
-
     fun loadDirectory(titleIdHex: String): File =
         File(DirectoryInitialization.userDirectory + "/load/" + titleIdHex.uppercase())
-
-    fun isPackageInstalled(fileName: String): Boolean =
-        preferences.getStringSet(PREF_INSTALLED_PACKAGES, emptySet())?.contains(fileName) == true
-
-    private fun rememberPackage(fileName: String) {
-        val current = preferences.getStringSet(PREF_INSTALLED_PACKAGES, emptySet()) ?: emptySet()
-        preferences.edit { putStringSet(PREF_INSTALLED_PACKAGES, current + fileName) }
-    }
 
     /**
      * Installs every mod found inside [zip] into load/[titleIdHex]/.
@@ -70,7 +50,6 @@ object ModInstaller {
                     throw IOException("Failed to copy mod into " + target.absolutePath)
                 }
             }
-            rememberPackage(zip.name)
             return modRoots.size
         } finally {
             tempDir.deleteRecursively()

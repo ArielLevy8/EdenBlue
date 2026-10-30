@@ -213,6 +213,16 @@ object NativeLibrary {
     external fun getPerfStats(): DoubleArray
 
     /**
+     * Returns how many frames were generated for the last rendered frame
+     */
+    external fun getFrameGenGenerations(): Int
+
+    /**
+     * Tells built-in frame generation the display refresh rate
+     */
+    external fun setFrameGenDisplayRate(rate: Float)
+
+    /**
      * Returns the number of shaders being built
      */
     external fun getShadersBuilding(): Int

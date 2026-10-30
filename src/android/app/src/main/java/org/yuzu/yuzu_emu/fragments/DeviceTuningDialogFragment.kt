@@ -9,7 +9,7 @@ import android.view.LayoutInflater
 import android.widget.Toast
 import androidx.fragment.app.DialogFragment
 import androidx.fragment.app.FragmentActivity
-import androidx.fragment.app.activityViewModels
+import androidx.lifecycle.ViewModelProvider
 import com.google.android.material.dialog.MaterialAlertDialogBuilder
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
@@ -21,10 +21,10 @@ import org.yuzu.yuzu_emu.databinding.DialogProgressBinding
 import org.yuzu.yuzu_emu.model.DriverViewModel
 import org.yuzu.yuzu_emu.utils.DeviceTuning
 import org.yuzu.yuzu_emu.utils.GpuDriverHelper
+import org.yuzu.yuzu_emu.utils.NativeConfig
 
 /** Lets the user pick their chip (the detected one is preselected), then applies its preset and driver. */
 class DeviceTuningDialogFragment : DialogFragment() {
-    private val driverViewModel: DriverViewModel by activityViewModels()
     private val client = OkHttpClient()
 
     private var selected = 0
@@ -79,6 +79,9 @@ class DeviceTuningDialogFragment : DialogFragment() {
             return
         }
 
+        // This dialog is already dismissed here, so it cannot look up the view model itself.
+        val driverViewModel = ViewModelProvider(activity)[DriverViewModel::class.java]
+
         val dialogBinding = DialogProgressBinding.inflate(LayoutInflater.from(activity))
         dialogBinding.progressBar.isIndeterminate = true
         dialogBinding.title.text = activity.getString(R.string.installing_driver)
@@ -91,22 +94,22 @@ class DeviceTuningDialogFragment : DialogFragment() {
 
         CoroutineScope(Dispatchers.Main).launch {
             try {
-                val installedName = withContext(Dispatchers.IO) {
+                val driver = withContext(Dispatchers.IO) {
                     val release = DeviceTuning.findDriver(client, source)
                     withContext(Dispatchers.Main) {
                         dialogBinding.status.text = release.name
                     }
-                    DeviceTuning.downloadAndInstallDriver(
-                        activity,
-                        client,
-                        release,
-                        driverViewModel
-                    )
+                    DeviceTuning.downloadAndInstallDriver(activity, client, release)
                 }
+                driverViewModel.onDriverAdded(driver)
+                NativeConfig.saveGlobalConfig()
                 progressDialog.dismiss()
                 Toast.makeText(
                     activity,
-                    activity.getString(R.string.device_tuning_driver_installed, installedName),
+                    activity.getString(
+                        R.string.device_tuning_driver_installed,
+                        driver.second.name ?: driver.first
+                    ),
                     Toast.LENGTH_LONG
                 ).show()
             } catch (e: Exception) {

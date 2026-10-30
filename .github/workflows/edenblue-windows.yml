@@ -4,9 +4,8 @@
 name: EdenBlue Windows
 # Builds the desktop emulator as a portable zip containing EdenBlue.exe.
 
+# Manual only: Windows is not being released yet.
 on:
-  push:
-    tags: [ 'edenblue-*' ]
   workflow_dispatch:
 
 permissions:

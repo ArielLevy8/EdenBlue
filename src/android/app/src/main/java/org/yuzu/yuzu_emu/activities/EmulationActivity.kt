@@ -190,6 +190,8 @@ class EmulationActivity : AppCompatActivity(), SensorEventListener, InputManager
 
         window.decorView.setBackgroundColor(getColor(android.R.color.black))
 
+        NativeLibrary.setFrameGenDisplayRate(windowManager.defaultDisplay.refreshRate)
+
         nfcReader = NfcReader(this)
         nfcReader.initialize()
 

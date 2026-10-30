@@ -44,13 +44,17 @@ void main() {
         textureLod(sampler2D(cur_frame, linear_sampler), uv + (1.0 - timestamp) * flow.xy, 0.0).rgb;
     const vec3 warped = mix(warped_prev, warped_cur, timestamp);
 
-    const vec3 still_prev = textureLod(sampler2D(prev_frame, linear_sampler), uv, 0.0).rgb;
-    const vec3 still_cur = textureLod(sampler2D(cur_frame, linear_sampler), uv, 0.0).rgb;
-    const vec3 faded = mix(still_prev, still_cur, timestamp);
-
     const float disagreement =
         smoothstep(DISAGREE_LOW, DISAGREE_HIGH, distance(warped_prev, warped_cur));
     const float fallback = max(disagreement, 1.0 - flow.b);
+    if (fallback <= 0.0) {
+        imageStore(out_frame, id, vec4(warped, 1.0));
+        return;
+    }
+
+    const vec3 still_prev = textureLod(sampler2D(prev_frame, linear_sampler), uv, 0.0).rgb;
+    const vec3 still_cur = textureLod(sampler2D(cur_frame, linear_sampler), uv, 0.0).rgb;
+    const vec3 faded = mix(still_prev, still_cur, timestamp);
 
     imageStore(out_frame, id, vec4(mix(warped, faded, fallback), 1.0));
 }

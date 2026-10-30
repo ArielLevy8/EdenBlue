@@ -15,8 +15,6 @@ import androidx.core.view.updatePadding
 import androidx.documentfile.provider.DocumentFile
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.activityViewModels
-import androidx.core.os.bundleOf
-import androidx.navigation.fragment.findNavController
 import androidx.navigation.fragment.navArgs
 import androidx.recyclerview.widget.LinearLayoutManager
 import com.google.android.material.transition.MaterialSharedAxis
@@ -125,12 +123,6 @@ class AddonsFragment : Fragment() {
             installModZip.launch(
                 arrayOf("application/zip", "application/x-zip-compressed", "application/octet-stream")
             )
-        }
-        parentFragmentManager.setFragmentResultListener(
-            ContentTypeSelectionDialogFragment.REQUEST_OPEN_MOD_BROWSER,
-            viewLifecycleOwner
-        ) { _, _ ->
-            findNavController().navigate(R.id.modFetcherFragment, bundleOf("game" to args.game))
         }
 
         binding.buttonInstall.setOnClickListener {

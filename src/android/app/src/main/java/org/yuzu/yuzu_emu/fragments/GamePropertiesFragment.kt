@@ -349,21 +349,6 @@ class GamePropertiesFragment : Fragment() {
                         }
                     )
                 )
-                add(
-                    SubmenuProperty(
-                        R.string.mod_browser,
-                        R.string.mod_browser_description,
-                        R.drawable.ic_import,
-                        action = {
-                            val action =
-                                HomeNavigationDirections.actionGlobalSettingsSubscreenActivity(
-                                    SettingsSubscreen.MOD_FETCHER,
-                                    args.game
-                                )
-                            binding.root.findNavController().navigate(action)
-                        }
-                    )
-                )
             }
 
             if (GpuDriverHelper.supportsCustomDriverLoading()) {

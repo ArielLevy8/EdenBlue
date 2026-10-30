@@ -3,8 +3,9 @@
 
 #version 450
 
-// Block-matching motion estimation. Each output texel covers one 8x8 pixel block and stores the
+// Block-matching motion estimation. Each output texel covers one 16x16 pixel block and stores the
 // UV displacement from the previous frame to the current one, plus a match confidence in .b.
+// Kept deliberately cheap: this runs on the render thread's GPU budget on phone hardware.
 
 layout(local_size_x = 8, local_size_y = 8, local_size_z = 1) in;
 
@@ -14,10 +15,12 @@ layout(binding = 2) uniform texture2D cur_frame;
 layout(binding = 3) uniform texture2D prior_motion;
 layout(binding = 4, rgba16f) uniform writeonly image2D out_motion;
 
-const int GRID = 4;
+const int GRID = 3;
+const float GRID_SPACING = 5.0;
 const float SAMPLE_COUNT = float(GRID * GRID);
 const float ZERO_BIAS = 0.9;
 const float MATCH_RANGE = 0.25;
+const float STILL_THRESHOLD = 0.004;
 
 vec2 pixel_size;
 
@@ -37,12 +40,16 @@ float BlockCost(vec2 uv, vec2 motion) {
     float cost = 0.0;
     for (int y = 0; y < GRID; ++y) {
         for (int x = 0; x < GRID; ++x) {
-            const vec2 offset = (vec2(x, y) - 1.5) * 2.0 * pixel_size;
+            const vec2 offset = (vec2(x, y) - 1.0) * GRID_SPACING * pixel_size;
             const vec2 position = uv + offset;
             cost += abs(CurrentLuma(position) - PreviousLuma(position - motion));
         }
     }
     return cost;
+}
+
+float Confidence(float cost) {
+    return 1.0 - clamp(cost / (SAMPLE_COUNT * MATCH_RANGE), 0.0, 1.0);
 }
 
 void main() {
@@ -56,9 +63,13 @@ void main() {
     const vec2 uv = (vec2(id) + 0.5) / vec2(size);
     const vec2 block_uv = 1.0 / vec2(size);
 
-    vec2 best = vec2(0.0);
     // Prefer no motion on ties so static scenes and HUD elements stay stable.
-    float best_cost = BlockCost(uv, best) * ZERO_BIAS;
+    float best_cost = BlockCost(uv, vec2(0.0)) * ZERO_BIAS;
+    if (best_cost < SAMPLE_COUNT * STILL_THRESHOLD) {
+        imageStore(out_motion, id, vec4(0.0, 0.0, 1.0, 1.0));
+        return;
+    }
+    vec2 best = vec2(0.0);
 
     const vec2 prior_offsets[5] =
         vec2[5](vec2(0.0), vec2(1.0, 0.0), vec2(-1.0, 0.0), vec2(0.0, 1.0), vec2(0.0, -1.0));
@@ -74,13 +85,13 @@ void main() {
         }
     }
 
-    const vec2 directions[8] =
-        vec2[8](vec2(1.0, 0.0), vec2(-1.0, 0.0), vec2(0.0, 1.0), vec2(0.0, -1.0),
-                vec2(1.0, 1.0), vec2(-1.0, 1.0), vec2(1.0, -1.0), vec2(-1.0, -1.0));
-    for (float step_pixels = 16.0; step_pixels >= 1.0; step_pixels *= 0.5) {
+    const float steps[3] = float[3](12.0, 4.0, 1.0);
+    const vec2 directions[4] =
+        vec2[4](vec2(1.0, 0.0), vec2(-1.0, 0.0), vec2(0.0, 1.0), vec2(0.0, -1.0));
+    for (int s = 0; s < 3; ++s) {
         const vec2 center = best;
-        for (int i = 0; i < 8; ++i) {
-            const vec2 candidate = center + directions[i] * step_pixels * pixel_size;
+        for (int i = 0; i < 4; ++i) {
+            const vec2 candidate = center + directions[i] * steps[s] * pixel_size;
             const float cost = BlockCost(uv, candidate);
             if (cost < best_cost) {
                 best_cost = cost;
@@ -89,6 +100,5 @@ void main() {
         }
     }
 
-    const float confidence = 1.0 - clamp(best_cost / (SAMPLE_COUNT * MATCH_RANGE), 0.0, 1.0);
-    imageStore(out_motion, id, vec4(best, confidence, 1.0));
+    imageStore(out_motion, id, vec4(best, Confidence(best_cost), 1.0));
 }

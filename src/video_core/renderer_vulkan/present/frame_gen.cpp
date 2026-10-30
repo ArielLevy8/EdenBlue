@@ -192,7 +192,9 @@ void CopyPresentedFrame(vk::CommandBuffer cmdbuf, VkImage source, LsfgImage& des
 FrameGen::FrameGen(MemoryAllocator& memory_allocator_, Scheduler& scheduler_)
     : memory_allocator{memory_allocator_}, scheduler{scheduler_} {}
 
-FrameGen::~FrameGen() = default;
+FrameGen::~FrameGen() {
+    Settings::SetFrameGenActiveGenerations(0);
+}
 
 void FrameGen::Process(const Device& device, Frame* frame, VkFormat format,
                        VkExtent2D guest_extent) {
@@ -207,6 +209,7 @@ void FrameGen::Process(const Device& device, Frame* frame, VkFormat format,
     if (blocked || !Settings::values.frame_gen.GetValue()) {
         ReleaseChains();
         warm_streak = 0;
+        Settings::SetFrameGenActiveGenerations(0);
         return;
     }
 
@@ -217,6 +220,7 @@ void FrameGen::Process(const Device& device, Frame* frame, VkFormat format,
 
     if (!frame->storage_view) {
         warm_streak = 0;
+        Settings::SetFrameGenActiveGenerations(0);
         return;
     }
 
@@ -239,6 +243,7 @@ void FrameGen::Process(const Device& device, Frame* frame, VkFormat format,
     const bool warm = plan.warm && count + 1 >= LSFG_REQUIRED_FRAMES;
     warm_streak = warm ? warm_streak + 1 : 0;
     generated = warm && warm_streak >= LSFG_RECURRENCE_FRAMES && plan.generations > 0;
+    Settings::SetFrameGenActiveGenerations(generated ? last_generations : 0);
 
     scheduler.RequestOutsideRenderPassOperationContext();
     scheduler.Record([this, source = *frame->image, extent, count,
