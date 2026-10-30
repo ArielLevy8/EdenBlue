@@ -5,6 +5,12 @@
 
 #include "common/zbic_compression.h"
 
+#ifdef _MSC_VER
+// zstd is compiled into this file with every function static, so most of it is unused here.
+// MSVC reports this at the end of the file, so the warning stays disabled until then.
+#pragma warning(disable : 4505)
+#endif
+
 #define ZSTD_ZBIC_SUPPORT 1
 #define ZSTDLIB_VISIBLE static
 #define ZSTDLIB_HIDDEN static
