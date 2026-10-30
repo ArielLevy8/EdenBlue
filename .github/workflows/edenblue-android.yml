@@ -2,6 +2,7 @@
 # SPDX-License-Identifier: GPL-3.0-or-later
 
 name: EdenBlue Android
+# Builds the edenBlue flavor APK; tags edenblue-* also publish a release.
 
 on:
   push:
