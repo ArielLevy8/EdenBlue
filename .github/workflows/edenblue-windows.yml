@@ -46,7 +46,7 @@ jobs:
         shell: pwsh
         run: |
           $env:PATH = "$env:VULKAN_SDK\Bin;$env:PATH"
-          cmake --build D:\b --target yuzu
+          cmake --build D:\b --target yuzu -- -k 0
 
       - name: Package
         shell: pwsh
