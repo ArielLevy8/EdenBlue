@@ -199,6 +199,7 @@ public:
     LsfgPass() = default;
     LsfgPass(const Device& device, const LsfgShaders& shaders, u32 shader_id,
              LsfgBindings bindings);
+    LsfgPass(const Device& device, VkShaderModule shader, LsfgBindings bindings);
 
     [[nodiscard]] VkDescriptorSetLayout SetLayout() const {
         return *descriptor_set_layout;

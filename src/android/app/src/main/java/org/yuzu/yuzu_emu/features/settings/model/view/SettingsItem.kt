@@ -67,9 +67,7 @@ abstract class SettingsItem(
                 return NativeLibrary.isFirmwareAvailable()
             }
 
-            if (setting.key in frameGenKeys &&
-                !(LosslessScalingHelper.isInstalled() && LosslessScalingHelper.isSupportedByGpu())
-            ) {
+            if (setting.key in frameGenKeys && !LosslessScalingHelper.isFrameGenAvailable()) {
                 return false
             }
 
@@ -668,6 +666,13 @@ abstract class SettingsItem(
                     BooleanSetting.RENDERER_FRAME_GEN,
                     titleId = R.string.frame_gen,
                     descriptionId = R.string.frame_gen_description
+                )
+            )
+            put(
+                SwitchSetting(
+                    BooleanSetting.RENDERER_FRAME_GEN_BUILTIN,
+                    titleId = R.string.frame_gen_builtin,
+                    descriptionId = R.string.frame_gen_builtin_description
                 )
             )
             put(

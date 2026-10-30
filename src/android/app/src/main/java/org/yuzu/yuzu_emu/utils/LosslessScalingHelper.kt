@@ -7,6 +7,7 @@ import android.net.Uri
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
+import org.yuzu.yuzu_emu.features.settings.model.BooleanSetting
 import org.yuzu.yuzu_emu.NativeLibrary
 import org.yuzu.yuzu_emu.R
 import org.yuzu.yuzu_emu.YuzuApplication
@@ -23,6 +24,11 @@ object LosslessScalingHelper {
     private var gpuSupported: Boolean? = null
 
     fun isInstalled(): Boolean = installed ?: refreshStatus()
+
+    /** Built-in frame generation needs neither the DLL nor the shader features Lossless does. */
+    fun isFrameGenAvailable(): Boolean =
+        BooleanSetting.RENDERER_FRAME_GEN_BUILTIN.getBoolean() ||
+            (isInstalled() && isSupportedByGpu())
 
     fun isSupportedByGpu(): Boolean {
         val cached = gpuSupported

@@ -278,7 +278,10 @@ void LsfgDescriptorWriter::Build(const Device& device) {
 }
 
 LsfgPass::LsfgPass(const Device& device, const LsfgShaders& shaders, u32 shader_id,
-                   LsfgBindings bindings) {
+                   LsfgBindings bindings)
+    : LsfgPass(device, shaders.Get(shader_id), bindings) {}
+
+LsfgPass::LsfgPass(const Device& device, VkShaderModule shader, LsfgBindings bindings) {
     std::vector<VkDescriptorType> types;
     for (const auto& [count, type] : bindings) {
         types.insert(types.end(), count, type);
@@ -288,7 +291,7 @@ LsfgPass::LsfgPass(const Device& device, const LsfgShaders& shaders, u32 shader_
     descriptor_set_layout = CreateWrappedDescriptorSetLayout(
         device, std::span<const VkDescriptorType>{types}, VK_SHADER_STAGE_COMPUTE_BIT);
     pipeline_layout = CreateWrappedPipelineLayout(device, descriptor_set_layout);
-    pipeline = CreateWrappedComputePipeline(device, pipeline_layout, shaders.Get(shader_id));
+    pipeline = CreateWrappedComputePipeline(device, pipeline_layout, shader);
 }
 
 void LsfgPass::Bind(vk::CommandBuffer cmdbuf, VkDescriptorSet set) const {

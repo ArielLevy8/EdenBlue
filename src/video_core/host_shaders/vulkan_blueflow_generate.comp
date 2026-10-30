@@ -1,0 +1,56 @@
+// SPDX-FileCopyrightText: Copyright 2026 EdenBlue Project
+// SPDX-License-Identifier: GPL-3.0-or-later
+
+#version 450
+
+// Motion compensated interpolation. Warps both neighbouring frames to the requested timestamp and
+// falls back to a plain cross-fade where the warps disagree, which hides most occlusion artifacts.
+
+layout(local_size_x = 16, local_size_y = 16, local_size_z = 1) in;
+
+layout(std140, binding = 0) uniform Constants {
+    uvec2 input_offset;
+    uint first_iter;
+    uint first_iter_s;
+    uint advanced_color_kind;
+    uint hdr_support;
+    float resolution_inv_scale;
+    float timestamp;
+    float ui_threshold;
+};
+
+layout(binding = 1) uniform sampler linear_sampler;
+layout(binding = 2) uniform texture2D prev_frame;
+layout(binding = 3) uniform texture2D cur_frame;
+layout(binding = 4) uniform texture2D motion;
+layout(binding = 5) uniform writeonly image2D out_frame;
+
+const float DISAGREE_LOW = 0.08;
+const float DISAGREE_HIGH = 0.35;
+
+void main() {
+    const ivec2 size = imageSize(out_frame);
+    const ivec2 id = ivec2(gl_GlobalInvocationID.xy);
+    if (any(greaterThanEqual(id, size))) {
+        return;
+    }
+
+    const vec2 uv = (vec2(id) + 0.5) / vec2(size);
+    const vec4 flow = textureLod(sampler2D(motion, linear_sampler), uv, 0.0);
+
+    const vec3 warped_prev =
+        textureLod(sampler2D(prev_frame, linear_sampler), uv - timestamp * flow.xy, 0.0).rgb;
+    const vec3 warped_cur =
+        textureLod(sampler2D(cur_frame, linear_sampler), uv + (1.0 - timestamp) * flow.xy, 0.0).rgb;
+    const vec3 warped = mix(warped_prev, warped_cur, timestamp);
+
+    const vec3 still_prev = textureLod(sampler2D(prev_frame, linear_sampler), uv, 0.0).rgb;
+    const vec3 still_cur = textureLod(sampler2D(cur_frame, linear_sampler), uv, 0.0).rgb;
+    const vec3 faded = mix(still_prev, still_cur, timestamp);
+
+    const float disagreement =
+        smoothstep(DISAGREE_LOW, DISAGREE_HIGH, distance(warped_prev, warped_cur));
+    const float fallback = max(disagreement, 1.0 - flow.b);
+
+    imageStore(out_frame, id, vec4(mix(warped, faded, fallback), 1.0));
+}

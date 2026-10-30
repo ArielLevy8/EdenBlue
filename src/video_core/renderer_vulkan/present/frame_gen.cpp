@@ -198,20 +198,19 @@ void FrameGen::Process(const Device& device, Frame* frame, VkFormat format,
                        VkExtent2D guest_extent) {
     generated = false;
 
-    if (!shaders) {
+    const bool builtin = Settings::values.frame_gen_builtin.GetValue();
+    if (!builtin && !shaders) {
         shaders.emplace(device);
     }
 
-    if (unavailable || !Settings::values.frame_gen.GetValue()) {
-        if (chain) {
-            scheduler.Finish();
-            chain.reset();
-        }
+    const bool blocked = builtin ? !BlueFlowChain::IsSupported(device) : unavailable;
+    if (blocked || !Settings::values.frame_gen.GetValue()) {
+        ReleaseChains();
         warm_streak = 0;
         return;
     }
 
-    if (!shaders->IsValid()) {
+    if (!builtin && !shaders->IsValid()) {
         unavailable = true;
         return;
     }
@@ -226,9 +225,11 @@ void FrameGen::Process(const Device& device, Frame* frame, VkFormat format,
 
     const VkExtent2D extent{.width = frame->width, .height = frame->height};
     const f32 flow_scale = ConfiguredFlowScale(peak_guest_extent, extent);
-    if (!chain || built_extent.width != extent.width || built_extent.height != extent.height ||
-        built_format != format || built_flow_scale != flow_scale) {
-        Rebuild(device, extent, format, flow_scale);
+    const bool has_chain = builtin ? blue_chain.has_value() : chain.has_value();
+    if (!has_chain || built_extent.width != extent.width ||
+        built_extent.height != extent.height || built_format != format ||
+        built_flow_scale != flow_scale) {
+        Rebuild(device, extent, format, flow_scale, builtin);
     }
 
     const u64 count = frame_count++;
@@ -242,13 +243,21 @@ void FrameGen::Process(const Device& device, Frame* frame, VkFormat format,
     scheduler.RequestOutsideRenderPassOperationContext();
     scheduler.Record([this, source = *frame->image, extent, count,
                       dispatch = warm](vk::CommandBuffer cmdbuf) {
+        if (blue_chain) {
+            CopyPresentedFrame(cmdbuf, source, blue_chain->Input(count), extent);
+            if (dispatch) {
+                blue_chain->DispatchShared(cmdbuf, count);
+            }
+            return;
+        }
         CopyPresentedFrame(cmdbuf, source, chain->Input(count), extent);
         if (dispatch) {
             chain->DispatchShared(cmdbuf, count);
         }
     });
 
-    const bool dump_requested = generated && Settings::values.frame_gen_dump_flow.GetValue();
+    const bool dump_requested =
+        generated && chain && Settings::values.frame_gen_dump_flow.GetValue();
     if (!dump_requested) {
         dumped = false;
     } else if (!dumped) {
@@ -258,7 +267,7 @@ void FrameGen::Process(const Device& device, Frame* frame, VkFormat format,
 }
 
 size_t FrameGen::WantedGenerations(size_t capacity) {
-    if (unavailable) {
+    if (unavailable && !Settings::values.frame_gen_builtin.GetValue()) {
         plan = {};
         return 0;
     }
@@ -271,10 +280,24 @@ size_t FrameGen::GeneratedFrameCount() const {
 }
 
 void FrameGen::GenerateInto(const Device& device, Frame* destination, size_t generation) {
+    const VkExtent2D extent{.width = destination->width, .height = destination->height};
+
+    if (blue_chain) {
+        blue_chain->SetTarget(device, last_generations, generation, destination->index,
+                              *destination->storage_view);
+
+        scheduler.RequestOutsideRenderPassOperationContext();
+        scheduler.Record([this, count = last_count, generation_count = last_generations, generation,
+                          target = destination->index, image = *destination->image,
+                          extent](vk::CommandBuffer cmdbuf) {
+            blue_chain->DispatchGeneration(cmdbuf, count, generation_count, generation, target,
+                                           image, extent);
+        });
+        return;
+    }
+
     chain->SetTarget(device, last_generations, generation, destination->index,
                      *destination->storage_view);
-
-    const VkExtent2D extent{.width = destination->width, .height = destination->height};
 
     scheduler.RequestOutsideRenderPassOperationContext();
     scheduler.Record([this, count = last_count, generation_count = last_generations, generation,
@@ -285,13 +308,27 @@ void FrameGen::GenerateInto(const Device& device, Frame* destination, size_t gen
     });
 }
 
-void FrameGen::Rebuild(const Device& device, VkExtent2D extent, VkFormat format, f32 flow_scale) {
+void FrameGen::ReleaseChains() {
+    if (chain || blue_chain) {
+        scheduler.Finish();
+        chain.reset();
+        blue_chain.reset();
+    }
+}
+
+void FrameGen::Rebuild(const Device& device, VkExtent2D extent, VkFormat format, f32 flow_scale,
+                       bool builtin) {
     scheduler.Finish();
     chain.reset();
+    blue_chain.reset();
 
     built_flow_scale = flow_scale;
 
-    chain.emplace(device, memory_allocator, *shaders, extent, format, built_flow_scale);
+    if (builtin) {
+        blue_chain.emplace(device, memory_allocator, extent, format);
+    } else {
+        chain.emplace(device, memory_allocator, *shaders, extent, format, built_flow_scale);
+    }
     built_extent = extent;
     built_format = format;
     frame_count = 0;

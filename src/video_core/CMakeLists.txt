@@ -276,6 +276,8 @@ if (ENABLE_LSFG)
         frame_gen/lossless_dll.h
         frame_gen/lsfg_translate.cpp
         frame_gen/lsfg_translate.h
+        renderer_vulkan/present/blueflow.cpp
+        renderer_vulkan/present/blueflow.h
         renderer_vulkan/present/frame_gen.cpp
         renderer_vulkan/present/frame_gen.h
         renderer_vulkan/present/frame_gen_pacer.cpp

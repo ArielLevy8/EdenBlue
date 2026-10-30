@@ -320,6 +320,8 @@
     <string name="frame_gen">Frame generation</string>
     <string name="frame_gen_per_game_description">Configure frame generation for this game</string>
     <string name="frame_gen_description">Insert interpolated frames between rendered ones using Lossless Scaling. Forces FIFO presentation while enabled.</string>
+    <string name="frame_gen_builtin">Use built-in frame generation</string>
+    <string name="frame_gen_builtin_description">Use EdenBlue\'s own motion interpolation, which needs no Lossless.dll. Turn this off to use Lossless Scaling instead.</string>
     <string name="frame_gen_multiplier">Frame multiplier</string>
     <string name="frame_gen_multiplier_description">How many frames to display for each rendered frame. Higher values cost proportionally more GPU time. Asking for more than your display can present will slow emulation down.</string>
     <string name="frame_gen_multiplier_2x">2x</string>

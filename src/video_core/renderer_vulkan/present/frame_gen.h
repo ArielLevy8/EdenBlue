@@ -6,6 +6,7 @@
 #include <optional>
 
 #include "common/common_types.h"
+#include "video_core/renderer_vulkan/present/blueflow.h"
 #include "video_core/renderer_vulkan/present/frame_gen_pacer.h"
 #include "video_core/renderer_vulkan/present/lsfg_chain.h"
 #include "video_core/renderer_vulkan/present/lsfg_shaders.h"
@@ -31,7 +32,9 @@ public:
     void GenerateInto(const Device& device, Frame* destination, size_t generation);
 
 private:
-    void Rebuild(const Device& device, VkExtent2D extent, VkFormat format, f32 flow_scale);
+    void Rebuild(const Device& device, VkExtent2D extent, VkFormat format, f32 flow_scale,
+                 bool builtin);
+    void ReleaseChains();
     void DumpDebugImages(u64 count);
 
     MemoryAllocator& memory_allocator;
@@ -39,6 +42,7 @@ private:
 
     std::optional<LsfgShaders> shaders;
     std::optional<LsfgChain> chain;
+    std::optional<BlueFlowChain> blue_chain;
     FrameGenPacer pacer;
     FrameGenPlan plan{};
     VkExtent2D peak_guest_extent{};

@@ -421,6 +421,10 @@ struct Values {
     SwitchableSetting<bool> frame_gen{linkage, false, "frame_gen", Category::Renderer,
                                       Specialization::Default, true, false};
 
+    SwitchableSetting<bool> frame_gen_builtin{linkage, true, "frame_gen_builtin",
+                                              Category::Renderer, Specialization::Default, true,
+                                              false, &frame_gen};
+
     SwitchableSetting<u32, true> frame_gen_multiplier{linkage,
                                                       2,
                                                       2,

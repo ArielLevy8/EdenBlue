@@ -90,7 +90,12 @@ class SettingsFragmentPresenter(
 
     private fun addFrameGenSettings(sl: ArrayList<SettingsItem>) {
         sl.apply {
-            if (!LosslessScalingHelper.isSupportedByGpu()) {
+            val builtin = BooleanSetting.RENDERER_FRAME_GEN_BUILTIN.getBoolean(
+                getNeedsGlobalForKey(BooleanSetting.RENDERER_FRAME_GEN_BUILTIN.key)
+            )
+            if (builtin) {
+                // Built-in frame generation has no extra requirements.
+            } else if (!LosslessScalingHelper.isSupportedByGpu()) {
                 add(
                     RunnableSetting(
                         titleId = R.string.frame_gen_unsupported,
@@ -109,6 +114,7 @@ class SettingsFragmentPresenter(
             }
 
             add(BooleanSetting.RENDERER_FRAME_GEN.key)
+            add(BooleanSetting.RENDERER_FRAME_GEN_BUILTIN.key)
             add(IntSetting.RENDERER_FRAME_GEN_TARGET_RATE.key)
             if (IntSetting.RENDERER_FRAME_GEN_TARGET_RATE.getInt(
                     getNeedsGlobalForKey(IntSetting.RENDERER_FRAME_GEN_TARGET_RATE.key)
