@@ -29,7 +29,7 @@ jobs:
       - name: Configure
         run: |
           cmake -S . -B build -G Ninja -DCMAKE_BUILD_TYPE=Release -DYUZU_TESTS=OFF -DYUZU_CMD=OFF \
-            -DCMAKE_PREFIX_PATH="$(brew --prefix qt@6)"
+            -DVulkanHeaders_FORCE_BUNDLED=ON -DCMAKE_PREFIX_PATH="$(brew --prefix qt@6)"
 
       - name: Build
         run: cmake --build build --target yuzu -- -k 0
