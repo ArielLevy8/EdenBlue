@@ -84,7 +84,7 @@ The APK is written to `artifacts/`. `./gradlew assembleEdenBlueRelease` from `sr
 works too. The flavor passes `-DEDENBLUE=ON -DYUZU_LEGACY=ON` to CMake.
 
 CI: `.github/workflows/edenblue-android.yml` builds every push and attaches the APK to a
-GitHub release when a `v*` tag is pushed.
+GitHub release when an `edenblue-*` tag (for example `edenblue-0.1.0`) is pushed.
 
 ## Upstream
 
