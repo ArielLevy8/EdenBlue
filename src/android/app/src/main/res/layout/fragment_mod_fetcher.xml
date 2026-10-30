@@ -40,7 +40,7 @@ SPDX-License-Identifier: GPL-3.0-or-later
         android:layout_marginStart="16dp"
         android:layout_marginTop="8dp"
         android:layout_marginEnd="16dp"
-        android:text="@string/mod_browser_dsmod_notice"
+        android:text="@string/mod_browser_notice"
         android:textAppearance="?attr/textAppearanceBodyMedium"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"

@@ -10,15 +10,14 @@ import java.io.File
 import java.io.IOException
 import java.util.zip.ZipInputStream
 
-/** Installs mod packages (plain mod ZIPs and Eden Duo .dsmod.zip companions) into the load directory. */
+/** Installs mod ZIPs into the load directory. */
 object ModInstaller {
     private const val PREF_INSTALLED_PACKAGES = "EdenBlueInstalledModPackages"
     private const val MAX_SEARCH_DEPTH = 4
 
     private val titleIdRegex = Regex("(?<![0-9A-Fa-f])([0-9A-Fa-f]{16})(?![0-9A-Fa-f])")
 
-    /** Companion packages carry a dualscreen/ folder instead of exefs/romfs. */
-    private val modRootMarkers = AddonUtil.validAddonDirectories + "dualscreen"
+    private val modRootMarkers = AddonUtil.validAddonDirectories
 
     private val preferences
         get() = PreferenceManager.getDefaultSharedPreferences(YuzuApplication.appContext)
@@ -60,9 +59,7 @@ object ModInstaller {
 
             val loadDir = loadDirectory(titleIdHex)
             loadDir.mkdirs()
-            val defaultName = zip.name
-                .removeSuffix(".zip").removeSuffix(".ZIP")
-                .removeSuffix(".dsmod")
+            val defaultName = zip.name.removeSuffix(".zip").removeSuffix(".ZIP")
             modRoots.forEach { root ->
                 val name = if (root == tempDir) defaultName else root.name
                 val target = File(loadDir, sanitize(name))
@@ -115,7 +112,7 @@ object ModInstaller {
         }
     }
 
-    /** Finds directories that look like a mod root (contain exefs/, romfs/, cheats/ or dualscreen/). */
+    /** Finds directories that look like a mod root (contain exefs/, romfs/ or cheats/). */
     private fun findModRoots(dir: File, depth: Int = 0): List<File> {
         if (isModRoot(dir)) {
             return listOf(dir)

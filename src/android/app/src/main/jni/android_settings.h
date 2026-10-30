@@ -72,20 +72,15 @@ namespace AndroidSettings {
 #ifdef EDENBLUE
         Settings::Setting<bool> enable_qlaunch_button{linkage, true, "enable_qlaunch_button",
                                                   Settings::Category::Android};
-        // EdenBlue: boot straight into the Switch home menu (qlaunch) when firmware is installed.
-        Settings::Setting<bool> boot_to_home_menu{linkage, true, "boot_to_home_menu",
-                                                  Settings::Category::Android};
-        // EdenBlue: after a game exits, go back to the home menu instead of the games list.
-        Settings::Setting<bool> return_to_home_menu{linkage, true, "return_to_home_menu",
-                                                    Settings::Category::Android};
 #else
         Settings::Setting<bool> enable_qlaunch_button{linkage, false, "enable_qlaunch_button",
                                                   Settings::Category::Android};
-        Settings::Setting<bool> boot_to_home_menu{linkage, false, "boot_to_home_menu",
-                                                  Settings::Category::Android};
-        Settings::Setting<bool> return_to_home_menu{linkage, false, "return_to_home_menu",
-                                                    Settings::Category::Android};
 #endif
+        // Opt-in: the home menu only starts by itself when the user turns these on.
+        Settings::Setting<bool> boot_to_home_menu{linkage, false, "auto_boot_home_menu",
+                                                  Settings::Category::Android};
+        Settings::Setting<bool> return_to_home_menu{linkage, false, "auto_return_home_menu",
+                                                    Settings::Category::Android};
         Settings::Setting<bool> invert_confirm_back_controller_buttons{
             linkage, false, "invert_confirm_back_controller_buttons", Settings::Category::Android};
 

@@ -43,7 +43,7 @@ import java.io.FileOutputStream
 import java.io.IOException
 
 /**
- * Browses mod packages hosted on GitHub (Eden Duo companions, ultrawide/FPS mods)
+ * Browses mod packages hosted on GitHub (ultrawide/FPS mods)
  * and installs them into the matching game load folder.
  */
 class ModFetcherFragment : Fragment() {
@@ -69,15 +69,6 @@ class ModFetcherFragment : Fragment() {
 
     private val sourceDefinitions: List<SourceDefinition> by lazy {
         listOf(
-            SourceDefinition(
-                R.string.mod_browser_source_eden_duo,
-                R.string.mod_browser_source_eden_duo_description
-            ) {
-                fetchReleasePackages(
-                    EDEN_DUO_COMPANIONS_REPO,
-                    getString(R.string.mod_browser_source_eden_duo)
-                )
-            },
             SourceDefinition(
                 R.string.mod_browser_source_ultrawide,
                 R.string.mod_browser_source_ultrawide_description
@@ -116,8 +107,7 @@ class ModFetcherFragment : Fragment() {
         args.game?.let { game ->
             binding.toolbarMods.title = getString(R.string.mod_browser_game, game.title)
             binding.textHint.text =
-                getString(R.string.mod_browser_filter_hint) + "\n\n" +
-                getString(R.string.mod_browser_dsmod_notice)
+                getString(R.string.mod_browser_filter_hint)
         }
 
         binding.listMods.layoutManager = LinearLayoutManager(context)
@@ -182,39 +172,6 @@ class ModFetcherFragment : Fragment() {
                     .show()
             }
         }
-    }
-
-    /** GitHub releases whose assets are mod ZIPs (Eden Duo companions). */
-    @Throws(IOException::class)
-    private fun fetchReleasePackages(repo: String, sourceName: String): List<ModPackage> {
-        val root = getJson("https://api.github.com/repos/$repo/releases?per_page=100")
-        val packages = mutableListOf<ModPackage>()
-        if (!root.isArray) {
-            return packages
-        }
-        for (node in root) {
-            val releaseName = node.get("name")?.asText()?.takeIf { it.isNotBlank() }
-                ?: node.get("tag_name")?.asText() ?: continue
-            val body = node.get("body")?.asText() ?: ""
-            val assets = node.get("assets") ?: continue
-            for (asset in assets) {
-                val fileName = asset.get("name")?.asText() ?: continue
-                if (!fileName.endsWith(".zip", ignoreCase = true)) continue
-                val url = asset.get("browser_download_url")?.asText() ?: continue
-                packages.add(
-                    ModPackage(
-                        title = releaseName,
-                        description = body.lineSequence().firstOrNull { it.isNotBlank() }
-                            ?.trim()?.take(160) ?: "",
-                        fileName = fileName,
-                        url = url,
-                        titleId = ModInstaller.titleIdFromName(fileName),
-                        sourceName = sourceName
-                    )
-                )
-            }
-        }
-        return packages
     }
 
     /** ZIP files stored directly in a repository (Fl4sh9174 ultrawide/FPS mods). */
@@ -373,7 +330,6 @@ class ModFetcherFragment : Fragment() {
     }
 
     companion object {
-        const val EDEN_DUO_COMPANIONS_REPO = "igawa6/eden-duo-companions"
         const val ULTRAWIDE_MODS_REPO = "Fl4sh9174/Switch-Emulator-Ultrawide-FPS-Mods"
     }
 }

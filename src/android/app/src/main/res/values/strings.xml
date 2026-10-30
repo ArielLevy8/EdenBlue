@@ -1288,9 +1288,9 @@
     <string name="edenblue_home_menu_header">Switch home menu</string>
     <string name="edenblue_performance_header">Snapdragon 865 / Adreno 650</string>
     <string name="boot_to_home_menu">Boot to home menu</string>
-    <string name="boot_to_home_menu_description">Start the Switch home menu (QLaunch) automatically when EdenBlue opens. Requires installed firmware and keys.</string>
+    <string name="boot_to_home_menu_description">Start the Switch home menu (QLaunch) automatically when EdenBlue opens. Off by default. Requires installed firmware and keys.</string>
     <string name="return_to_home_menu">Return to home menu after a game</string>
-    <string name="return_to_home_menu_description">When a game that was started from the games list exits, go back to the Switch home menu instead of the EdenBlue games list</string>
+    <string name="return_to_home_menu_description">When a game exits, go back to the Switch home menu instead of the EdenBlue games list. Off by default.</string>
     <string name="home_menu_missing_firmware">Firmware is not installed, so the Switch home menu cannot start. Install firmware and keys under Manage EdenBlue data.</string>
     <string name="sd865_optimizer">Snapdragon 865 optimizer</string>
     <string name="sd865_optimizer_description">Apply the recommended EdenBlue settings for Snapdragon 865 devices with an Adreno 650 GPU</string>
@@ -1307,15 +1307,13 @@
     <string name="sd865_optimizer_not_adreno_warning">This device does not report an Adreno GPU. The profile still works but was tuned for the Adreno 650.</string>
 
     <string name="mod_browser">Mod browser</string>
-    <string name="mod_browser_description">Download Eden Duo companions and other mods from GitHub and install them for your games</string>
+    <string name="mod_browser_description">Download mods from GitHub and install them for your games</string>
     <string name="mod_browser_game">Mods for %1$s</string>
     <string name="mod_browser_filter_hint">Showing packages that match this game\'s title ID</string>
     <string name="mod_browser_no_results">No packages found for this game. Open the mod browser from Settings to see everything.</string>
-    <string name="mod_browser_source_eden_duo" translatable="false">Eden Duo companions</string>
-    <string name="mod_browser_source_eden_duo_description">Second-screen companion packages (.dsmod.zip) from the Eden Duo project</string>
     <string name="mod_browser_source_ultrawide" translatable="false">Ultrawide &amp; FPS mods</string>
     <string name="mod_browser_source_ultrawide_description">Resolution, aspect ratio and frame rate mods collected by Fl4sh9174</string>
-    <string name="mod_browser_dsmod_notice">Eden Duo companions are second-screen packages. EdenBlue installs them into the game\'s mod folder; they render only on builds that include the Eden Duo dual-screen runtime.</string>
+    <string name="mod_browser_notice">Mods are tied to a game version. If one misbehaves, disable it under the game\'s Add-ons.</string>
     <string name="mod_install_select_game">Select the game for this mod</string>
     <string name="mod_install_no_games">No games in your library match this package</string>
     <string name="mod_install_from_zip">Mods (ZIP file)</string>

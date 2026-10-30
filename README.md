@@ -23,10 +23,11 @@ next to regular Eden builds (package `dev.edenblue.emulator`) and keeps its own 
 ## Target devices
 
 EdenBlue is built from Eden's **legacy** code path, which upstream recommends for the
-Snapdragon 865 / Adreno 650, plus the `EDENBLUE` flavor. Tested targets:
+Snapdragon 865 / Adreno 650, plus the `EDENBLUE` flavor. Intended devices (none of these
+have been tested yet, so reports are welcome):
 
 - Retroid Pocket 5, Retroid Pocket Flip 2, Retroid Pocket Mini V2
-- Snapdragon 865 phones (OnePlus 8 / 8 Pro / 8T, Galaxy S20 Exynos excluded, Xiaomi Mi 10, Poco F2 Pro, ...)
+- Snapdragon 865 phones (OnePlus 8 / 8 Pro / 8T, Snapdragon Galaxy S20, Xiaomi Mi 10, Poco F2 Pro, ...)
 - Android 10 or newer, arm64 only
 
 Other devices run EdenBlue too, but the tuned profile assumes an Adreno 650.
@@ -35,20 +36,12 @@ Other devices run EdenBlue too, but the tuned profile assumes an Adreno 650.
 
 | Feature | Where |
 |---|---|
-| **Boot to home menu** (on by default). With firmware and keys installed, EdenBlue opens straight into the Switch home menu (QLaunch) so the device feels like a Switch. | Settings → EdenBlue |
-| **Return to home menu** after a game started from the games list exits. | Settings → EdenBlue |
+| **Boot to home menu** (off by default). Optionally open straight into the Switch home menu (QLaunch). | Settings → EdenBlue |
+| **Return to home menu** after a game exits (off by default). | Settings → EdenBlue |
 | **Snapdragon 865 optimizer**: one tap applies a tuned profile (handheld 1x, low GPU accuracy, async shaders, EDS2, GPU ASTC, 3 pipeline workers, ...) and can download and select the recommended Mr. Purple Turnip driver. Also offered during first-run setup. | Settings home, Settings → EdenBlue, first-run setup |
-| **Mod browser**: downloads **Eden Duo companions** (`igawa6/eden-duo-companions`) and the **Ultrawide & FPS mods** collection (`Fl4sh9174/Switch-Emulator-Ultrawide-FPS-Mods`) from GitHub and installs them into the right game's `load/` folder, matched by title ID. | Settings home, game → Mod browser, game → Add-ons → Install |
+| **Mod browser**: downloads the **Ultrawide & FPS mods** collection (`Fl4sh9174/Switch-Emulator-Ultrawide-FPS-Mods`) from GitHub and installs each one into the right game's `load/` folder, matched by title ID. | Settings home, game → Mod browser, game → Add-ons → Install |
 | **Install mods from ZIP**: pick any mod ZIP (nested folders are handled) and it lands in the game's `load/` folder. | game → Add-ons → Install → Mods (ZIP file) |
 | QLaunch button shown by default, blue theme by default, blue launcher and splash icons. | |
-
-### About Eden Duo companions
-
-Eden Duo companions are second-screen packages (`.dsmod.zip`) made for the
-[Eden Duo](https://github.com/igawa6/eden-duo) fork on dual-screen handhelds. EdenBlue
-downloads and installs them into the game's mod folder, but it does not include Eden Duo's
-dual-screen runtime, so the panels only render on Eden Duo builds. Regular mods (exefs,
-romfs, cheats) work as usual.
 
 ## Keys and firmware
 
