@@ -32,6 +32,11 @@ if (YUZU_LEGACY)
     add_compile_definitions(YUZU_LEGACY)
 endif()
 
+# EdenBlue (android only)
+if (EDENBLUE)
+    add_compile_definitions(EDENBLUE)
+endif()
+
 # Genshin Spoof (android only)
 if (GENSHIN_SPOOF)
     message(WARNING "Making Genshin spoof build")

@@ -991,6 +991,20 @@ abstract class SettingsItem(
                 )
             )
             put(
+                SwitchSetting(
+                    BooleanSetting.BOOT_TO_HOME_MENU,
+                    titleId = R.string.boot_to_home_menu,
+                    descriptionId = R.string.boot_to_home_menu_description,
+                )
+            )
+            put(
+                SwitchSetting(
+                    BooleanSetting.RETURN_TO_HOME_MENU,
+                    titleId = R.string.return_to_home_menu,
+                    descriptionId = R.string.return_to_home_menu_description,
+                )
+            )
+            put(
                 SingleChoiceSetting(
                     IntSetting.APP_LANGUAGE,
                     titleId = R.string.app_language,

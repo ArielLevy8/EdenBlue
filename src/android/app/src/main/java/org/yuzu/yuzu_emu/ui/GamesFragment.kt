@@ -41,6 +41,7 @@ import org.yuzu.yuzu_emu.model.Game
 import org.yuzu.yuzu_emu.model.GamesViewModel
 import org.yuzu.yuzu_emu.model.HomeViewModel
 import org.yuzu.yuzu_emu.ui.main.MainActivity
+import org.yuzu.yuzu_emu.utils.EdenBlueState
 import org.yuzu.yuzu_emu.utils.ViewUtils.setVisible
 import org.yuzu.yuzu_emu.utils.collect
 import info.debatty.java.stringsimilarity.Jaccard
@@ -249,6 +250,7 @@ class GamesFragment : Fragment() {
 
     override fun onResume() {
         super.onResume()
+        maybeBootHomeMenu()
         if (getCurrentViewType() == GameAdapter.VIEW_TYPE_CAROUSEL) {
             (binding.gridGames as? CarouselRecyclerView)?.setupCarousel(true)
             (binding.gridGames as? CarouselRecyclerView)?.restoreScrollState(gamesViewModel.lastScrollPosition)
@@ -482,7 +484,7 @@ class GamesFragment : Fragment() {
         }
     }
 
-    private fun launchQLaunch() {
+    fun launchQLaunch() {
         try {
             val appletPath = NativeLibrary.getAppletLaunchPath(AppletInfo.QLaunch.entryId)
             if (appletPath.isEmpty()) {
@@ -509,6 +511,46 @@ class GamesFragment : Fragment() {
                 "Failed to launch QLaunch: ${e.message}",
                 Toast.LENGTH_SHORT
             ).show()
+        }
+    }
+
+    /**
+     * EdenBlue: start the Switch home menu automatically on the first launch of the process
+     * (Boot to home menu) or after a game exits (Return to home menu).
+     */
+    private fun maybeBootHomeMenu() {
+        val firstTimeSetup = preferences.getBoolean(
+            org.yuzu.yuzu_emu.features.settings.model.Settings.PREF_FIRST_APP_LAUNCH,
+            true
+        )
+        if (firstTimeSetup) {
+            return
+        }
+
+        val relaunch = EdenBlueState.pendingHomeMenuRelaunch
+        val boot = !EdenBlueState.homeMenuAutoBooted &&
+            BooleanSetting.BOOT_TO_HOME_MENU.getBoolean()
+        if (!relaunch && !boot) {
+            return
+        }
+        EdenBlueState.pendingHomeMenuRelaunch = false
+        EdenBlueState.homeMenuAutoBooted = true
+
+        if (!NativeLibrary.isFirmwareAvailable() || !NativeLibrary.areKeysPresent()) {
+            if (boot) {
+                Toast.makeText(
+                    requireContext(),
+                    R.string.home_menu_missing_firmware,
+                    Toast.LENGTH_LONG
+                ).show()
+            }
+            return
+        }
+
+        binding.root.post {
+            if (isAdded && _binding != null) {
+                launchQLaunch()
+            }
         }
     }
 

@@ -165,6 +165,17 @@
             app:argType="org.yuzu.yuzu_emu.model.Game" />
     </fragment>
     <fragment
+        android:id="@+id/modFetcherFragment"
+        android:name="org.yuzu.yuzu_emu.fragments.ModFetcherFragment"
+        android:label="fragment_mod_fetcher"
+        tools:layout="@layout/fragment_mod_fetcher">
+        <argument
+            android:name="game"
+            app:argType="org.yuzu.yuzu_emu.model.Game"
+            app:nullable="true"
+            android:defaultValue="@null" />
+    </fragment>
+    <fragment
         android:id="@+id/driverFetcherFragment"
         android:name="org.yuzu.yuzu_emu.fragments.DriverFetcherFragment"
         android:label="fragment_driver_fetcher"

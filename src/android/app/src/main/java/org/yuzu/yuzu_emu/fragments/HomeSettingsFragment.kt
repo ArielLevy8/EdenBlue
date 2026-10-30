@@ -173,6 +173,31 @@ class HomeSettingsFragment : Fragment() {
             }
             add(
                 HomeSetting(
+                    R.string.sd865_optimizer,
+                    R.string.sd865_optimizer_description,
+                    R.drawable.ic_graphics,
+                    {
+                        Sd865OptimizerDialogFragment.newInstance()
+                            .show(parentFragmentManager, Sd865OptimizerDialogFragment.TAG)
+                    }
+                )
+            )
+            add(
+                HomeSetting(
+                    R.string.mod_browser,
+                    R.string.mod_browser_description,
+                    R.drawable.ic_edit,
+                    {
+                        val action = HomeNavigationDirections.actionGlobalSettingsSubscreenActivity(
+                            SettingsSubscreen.MOD_FETCHER,
+                            null
+                        )
+                        binding.root.findNavController().navigate(action)
+                    }
+                )
+            )
+            add(
+                HomeSetting(
                     R.string.post_processing,
                     R.string.post_processing_description,
                     R.drawable.ic_post_processing,

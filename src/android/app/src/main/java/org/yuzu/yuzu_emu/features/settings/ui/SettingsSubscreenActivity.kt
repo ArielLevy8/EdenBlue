@@ -37,6 +37,7 @@ enum class SettingsSubscreen {
     LICENSES,
     GAME_INFO,
     ADDONS,
+    MOD_FETCHER,
 }
 
 class SettingsSubscreenActivity : AppCompatActivity() {
@@ -135,11 +136,13 @@ class SettingsSubscreenActivity : AppCompatActivity() {
             SettingsSubscreen.LICENSES -> R.id.licensesFragment
             SettingsSubscreen.GAME_INFO -> R.id.gameInfoFragment
             SettingsSubscreen.ADDONS -> R.id.addonsFragment
+            SettingsSubscreen.MOD_FETCHER -> R.id.modFetcherFragment
         }
 
     private fun createStartDestinationArgs(): Bundle =
         when (args.destination) {
             SettingsSubscreen.DRIVER_MANAGER,
+            SettingsSubscreen.MOD_FETCHER,
             SettingsSubscreen.FREEDRENO_SETTINGS -> bundleOf("game" to args.game)
 
             SettingsSubscreen.GAME_INFO,

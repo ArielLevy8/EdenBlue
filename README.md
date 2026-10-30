@@ -1,90 +1,94 @@
 <!--
-# SPDX-FileCopyrightText: Copyright 2025 Eden Emulator Project
-# SPDX-License-Identifier: GPL-3.0-or-later
+SPDX-FileCopyrightText: Copyright 2026 EdenBlue Project
+SPDX-License-Identifier: GPL-3.0-or-later
 
-# SPDX-FileCopyrightText: 2018 yuzu Emulator Project
-# SPDX-License-Identifier: GPL-2.0-or-later
+SPDX-FileCopyrightText: Copyright 2025 Eden Emulator Project
+SPDX-License-Identifier: GPL-3.0-or-later
 -->
-<!-- lang: en-GB -->
 
 <h1 align="center">
   <br>
-  <a href="https://git.eden-emu.dev/eden-emu/eden"><img src="./dist/qt_themes/default/icons/256x256/eden.png" alt="Eden" width="200"></a>
+  <img src="./src/android/app/src/edenBlue/res/drawable/ic_yuzu.png" alt="EdenBlue" width="160">
   <br>
-  <b>Eden</b>
+  <b>EdenBlue</b>
   <br>
 </h1>
 
-<h4 align="center"><b>Eden</b> is a free and open-source (FOSS) Switch 1 emulator started by developer Camille LaVey.
-<br>
-Written in C++, with builds for Windows, Linux, macOS, Android, FreeBSD and more.
-</h4>
+<h4 align="center">A fork of the <a href="https://git.eden-emu.dev/eden-emu/eden">Eden</a> Nintendo Switch emulator for Android, tuned for Snapdragon 865 devices with the Adreno 650 GPU.</h4>
 
-<p align="center">
-    </a>
-    <a href="https://discord.gg/HstXbPch7X">
-        <img src="https://img.shields.io/discord/1367654015269339267?color=5865F2&label=Eden&logo=discord&logoColor=white"
-            alt="Discord">
-    </a>
-    <a href="https://stt.gg/qKgFEAbH">
-        <img src="https://img.shields.io/revolt/invite/qKgFEAbH?color=d61f3a&label=Stoat"
-            alt="Stoat">
-    </a>
-</p>
+EdenBlue tracks Eden `master` and adds a Switch-like startup flow, a Snapdragon 865
+optimizer, an in-app mod browser and a handful of quality-of-life changes. It installs
+next to regular Eden builds (package `dev.edenblue.emulator`) and keeps its own data.
 
-<p align="center">
-  <a href="#compatibility">Compatibility</a> |
-  <a href="#development">Development</a> |
-  <a href="#building">Building</a> |
-  <a href="#download">Download</a> |
-  <a href="#support">Support</a> |
-  <a href="#license">License</a>
-</p>
+## Target devices
 
-## Compatibility
+EdenBlue is built from Eden's **legacy** code path, which upstream recommends for the
+Snapdragon 865 / Adreno 650, plus the `EDENBLUE` flavor. Tested targets:
 
-The emulator is capable of running most commercial games at full speed, provided you meet the necessary hardware requirements.
+- Retroid Pocket 5, Retroid Pocket Flip 2, Retroid Pocket Mini V2
+- Snapdragon 865 phones (OnePlus 8 / 8 Pro / 8T, Galaxy S20 Exynos excluded, Xiaomi Mi 10, Poco F2 Pro, ...)
+- Android 10 or newer, arm64 only
 
-A list of supported games will be available in future. Please be patient.
+Other devices run EdenBlue too, but the tuned profile assumes an Adreno 650.
 
-Check out our [website](https://eden-emu.dev) for the latest news on exciting features, monthly progress reports, and more!
+## What EdenBlue adds
 
-[![Packaging status](https://repology.org/badge/vertical-allrepos/eden-emulator.svg)](https://repology.org/project/eden-emulator/versions)
+| Feature | Where |
+|---|---|
+| **Boot to home menu** (on by default). With firmware and keys installed, EdenBlue opens straight into the Switch home menu (QLaunch) so the device feels like a Switch. | Settings → EdenBlue |
+| **Return to home menu** after a game started from the games list exits. | Settings → EdenBlue |
+| **Snapdragon 865 optimizer**: one tap applies a tuned profile (handheld 1x, low GPU accuracy, async shaders, EDS2, GPU ASTC, 3 pipeline workers, ...) and can download and select the recommended Mr. Purple Turnip driver. Also offered during first-run setup. | Settings home, Settings → EdenBlue, first-run setup |
+| **Mod browser**: downloads **Eden Duo companions** (`igawa6/eden-duo-companions`) and the **Ultrawide & FPS mods** collection (`Fl4sh9174/Switch-Emulator-Ultrawide-FPS-Mods`) from GitHub and installs them into the right game's `load/` folder, matched by title ID. | Settings home, game → Mod browser, game → Add-ons → Install |
+| **Install mods from ZIP**: pick any mod ZIP (nested folders are handled) and it lands in the game's `load/` folder. | game → Add-ons → Install → Mods (ZIP file) |
+| QLaunch button shown by default, blue theme by default, blue launcher and splash icons. | |
 
-## Contribute
+### About Eden Duo companions
 
-To contribute to Eden; be it financially, code, bug reports, or otherwise, see our [Contributing guidelines](./CONTRIBUTING.md).
+Eden Duo companions are second-screen packages (`.dsmod.zip`) made for the
+[Eden Duo](https://github.com/igawa6/eden-duo) fork on dual-screen handhelds. EdenBlue
+downloads and installs them into the game's mod folder, but it does not include Eden Duo's
+dual-screen runtime, so the panels only render on Eden Duo builds. Regular mods (exefs,
+romfs, cheats) work as usual.
 
-## Documentation
+## Keys and firmware
 
-We have a user manual! See our [User Handbook](./docs/user/README.md).
+EdenBlue **does not ship** `prod.keys`, `title.keys` or Switch firmware. They are Nintendo's
+property and cannot be redistributed. Dump them from your own console and import them in
+the first-run setup (or later under *Manage EdenBlue data*):
 
-## Building
+1. Install the APK and open EdenBlue.
+2. On the *Emulator data* page, tap **Keys** and pick your `prod.keys` (or a ZIP that contains it).
+3. Tap **Firmware** and pick your firmware ZIP.
+4. Add your games folder, apply the Snapdragon 865 profile and finish setup.
 
-See the [General Build Guide](docs/Build.md)
-
-For information on provided development tooling, see the [Tools directory](./tools)
+The home menu needs both keys and firmware. Without them EdenBlue falls back to the games list.
 
 ## Download
 
-You can download the latest releases from [our release page](https://git.eden-emu.dev/eden-emu/eden/releases).
+Prebuilt APKs are published on the
+[Releases](https://github.com/ArielLevy8/EdenBlue/releases) page and as workflow artifacts
+of the **EdenBlue Android** GitHub Action. Builds are signed with the repository debug key,
+so uninstall older builds signed with another key before installing.
 
-Save us some bandwidth! We have [mirrors available](./docs/user/ThirdParty.md#mirrors) as well.
+## Building
 
-## License
+Requirements: JDK 17, Android SDK 36, NDK 28.2.13676358, CMake 3.31.5, Git.
 
-Eden is licensed under the GPLv3 (or any later version). Refer to the [LICENSE.txt](https://git.eden-emu.dev/eden-emu/eden/src/branch/master/LICENSE.txt) file.
+```sh
+git clone https://github.com/ArielLevy8/EdenBlue.git
+cd EdenBlue
+.ci/android/build.sh -t edenblue -b Release
+```
 
-## Special thanks
+The APK is written to `artifacts/`. `./gradlew assembleEdenBlueRelease` from `src/android`
+works too. The flavor passes `-DEDENBLUE=ON -DYUZU_LEGACY=ON` to CMake.
 
-Super special thanks to Cloudflare for preventing the git server from blowing up.
+CI: `.github/workflows/edenblue-android.yml` builds every push and attaches the APK to a
+GitHub release when a `v*` tag is pushed.
 
-- Yuzu
-- Ryujinx
-- Sudachi
-- Citron
-- Torzu
-- Suyu
-- Ryubing
+## Upstream
 
-And everyone who continues or had contributed to the project! <3
+EdenBlue is based on Eden, which is derived from yuzu and Sudachi, licensed under the GPLv3
+or any later version. See [LICENSE.txt](LICENSE.txt). Upstream README, build docs and
+contribution policies live in [docs/](docs/). Issues with the core emulator belong upstream;
+issues with EdenBlue-specific features belong here.

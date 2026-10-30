@@ -1282,6 +1282,50 @@
     <string name="enable_qlaunch_button">QLaunch</string>
     <string name="enable_qlaunch_button_description">Show the button to launch QLaunch</string>
 
+    <!-- EdenBlue -->
+    <string name="edenblue_settings" translatable="false">EdenBlue</string>
+    <string name="edenblue_settings_description">Home menu boot, Snapdragon 865 tuning and other EdenBlue options</string>
+    <string name="edenblue_home_menu_header">Switch home menu</string>
+    <string name="edenblue_performance_header">Snapdragon 865 / Adreno 650</string>
+    <string name="boot_to_home_menu">Boot to home menu</string>
+    <string name="boot_to_home_menu_description">Start the Switch home menu (QLaunch) automatically when EdenBlue opens. Requires installed firmware and keys.</string>
+    <string name="return_to_home_menu">Return to home menu after a game</string>
+    <string name="return_to_home_menu_description">When a game that was started from the games list exits, go back to the Switch home menu instead of the EdenBlue games list</string>
+    <string name="home_menu_missing_firmware">Firmware is not installed, so the Switch home menu cannot start. Install firmware and keys under Manage EdenBlue data.</string>
+    <string name="sd865_optimizer">Snapdragon 865 optimizer</string>
+    <string name="sd865_optimizer_description">Apply the recommended EdenBlue settings for Snapdragon 865 devices with an Adreno 650 GPU</string>
+    <string name="sd865_optimizer_dialog_message">This applies a tuned profile for the Snapdragon 865 / Adreno 650:\n\n• Handheld mode at native 1x resolution\n• Bilinear scaling, no anti-aliasing, 1x anisotropic filtering\n• Low GPU accuracy, conservative VRAM, immediate V-Sync\n• Asynchronous shaders on, reactive flushing off\n• Extended dynamic state 2 (Turnip friendly), vertex input dynamic state off\n• ASTC decoded on the GPU, NVDEC on the CPU\n• 3 pipeline workers, 4 GB memory layout, Dynarmic auto accuracy\n\nFor best results also install the recommended Mr. Purple Turnip driver.</string>
+    <string name="sd865_optimizer_apply">Apply settings</string>
+    <string name="sd865_optimizer_driver">Install Turnip driver</string>
+    <string name="sd865_optimizer_applied">Snapdragon 865 profile applied</string>
+    <string name="sd865_optimizer_driver_installed">Recommended driver installed and selected: %1$s</string>
+    <string name="sd865_optimizer_driver_failed">Could not install the recommended driver</string>
+    <string name="sd865_optimizer_driver_unsupported">This device does not support custom GPU drivers</string>
+    <string name="sd865_optimizer_setup">Snapdragon 865 tuning</string>
+    <string name="sd865_optimizer_setup_description">EdenBlue is built for Snapdragon 865 devices with the Adreno 650 GPU. Apply the tuned profile now; you can change any setting later.</string>
+    <string name="sd865_driver_fetcher_description">Download a Turnip GPU driver. Mr. Purple T19 is recommended for the Adreno 650.</string>
+    <string name="sd865_optimizer_not_adreno_warning">This device does not report an Adreno GPU. The profile still works but was tuned for the Adreno 650.</string>
+
+    <string name="mod_browser">Mod browser</string>
+    <string name="mod_browser_description">Download Eden Duo companions and other mods from GitHub and install them for your games</string>
+    <string name="mod_browser_game">Mods for %1$s</string>
+    <string name="mod_browser_filter_hint">Showing packages that match this game\'s title ID</string>
+    <string name="mod_browser_no_results">No packages found for this game. Open the mod browser from Settings to see everything.</string>
+    <string name="mod_browser_source_eden_duo" translatable="false">Eden Duo companions</string>
+    <string name="mod_browser_source_eden_duo_description">Second-screen companion packages (.dsmod.zip) from the Eden Duo project</string>
+    <string name="mod_browser_source_ultrawide" translatable="false">Ultrawide &amp; FPS mods</string>
+    <string name="mod_browser_source_ultrawide_description">Resolution, aspect ratio and frame rate mods collected by Fl4sh9174</string>
+    <string name="mod_browser_dsmod_notice">Eden Duo companions are second-screen packages. EdenBlue installs them into the game\'s mod folder; they render only on builds that include the Eden Duo dual-screen runtime.</string>
+    <string name="mod_install_select_game">Select the game for this mod</string>
+    <string name="mod_install_no_games">No games in your library match this package</string>
+    <string name="mod_install_from_zip">Mods (ZIP file)</string>
+    <string name="mod_install_browse_online">Browse online mods</string>
+    <string name="mod_installing">Installing mod…</string>
+    <string name="mod_installed">Installed %1$d mod(s)</string>
+    <string name="mod_install_invalid_zip">The ZIP does not contain a mod (no exefs, romfs or cheats folder found)</string>
+    <string name="mod_download_failed">Download failed: %1$s</string>
+    <string name="installed_mods_label">%1$s (installed)</string>
+
     <!-- App Language -->
     <string name="app_language">App Language</string>
     <string name="app_language_description">Change the language of the app interface</string>

@@ -15,6 +15,8 @@ import androidx.core.view.updatePadding
 import androidx.documentfile.provider.DocumentFile
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.activityViewModels
+import androidx.core.os.bundleOf
+import androidx.navigation.fragment.findNavController
 import androidx.navigation.fragment.navArgs
 import androidx.recyclerview.widget.LinearLayoutManager
 import com.google.android.material.transition.MaterialSharedAxis
@@ -24,7 +26,9 @@ import org.yuzu.yuzu_emu.databinding.FragmentAddonsBinding
 import org.yuzu.yuzu_emu.model.AddonViewModel
 import org.yuzu.yuzu_emu.model.HomeViewModel
 import org.yuzu.yuzu_emu.utils.AddonUtil
+import org.yuzu.yuzu_emu.utils.FileUtil
 import org.yuzu.yuzu_emu.utils.FileUtil.copyFilesTo
+import org.yuzu.yuzu_emu.utils.ModInstaller
 import org.yuzu.yuzu_emu.utils.InstallableActions
 import org.yuzu.yuzu_emu.utils.ViewUtils.updateMargins
 import org.yuzu.yuzu_emu.utils.collect
@@ -114,6 +118,20 @@ class AddonsFragment : Fragment() {
         ) { _, _ ->
             installGameUpdate.launch(arrayOf("*/*"))
         }
+        parentFragmentManager.setFragmentResultListener(
+            ContentTypeSelectionDialogFragment.REQUEST_INSTALL_MOD_ZIP,
+            viewLifecycleOwner
+        ) { _, _ ->
+            installModZip.launch(
+                arrayOf("application/zip", "application/x-zip-compressed", "application/octet-stream")
+            )
+        }
+        parentFragmentManager.setFragmentResultListener(
+            ContentTypeSelectionDialogFragment.REQUEST_OPEN_MOD_BROWSER,
+            viewLifecycleOwner
+        ) { _, _ ->
+            findNavController().navigate(R.id.modFetcherFragment, bundleOf("game" to args.game))
+        }
 
         binding.buttonInstall.setOnClickListener {
             ContentTypeSelectionDialogFragment().show(
@@ -180,6 +198,51 @@ class AddonsFragment : Fragment() {
             } else {
                 errorMessage.show(parentFragmentManager, MessageDialogFragment.TAG)
             }
+        }
+
+    /** EdenBlue: install a mod packaged as a ZIP straight into the load folder of this game. */
+    private val installModZip =
+        registerForActivityResult(ActivityResultContracts.OpenDocument()) { result ->
+            if (result == null) {
+                return@registerForActivityResult
+            }
+            val context = requireContext().applicationContext
+            val activity = requireActivity()
+            ProgressDialogFragment.newInstance(
+                activity,
+                R.string.mod_installing,
+                false
+            ) { progressCallback, _ ->
+                val cacheDir = context.externalCacheDir ?: context.cacheDir
+                cacheDir.mkdirs()
+                val file = File(cacheDir, FileUtil.getFilename(result))
+                try {
+                    val input = context.contentResolver.openInputStream(result)
+                        ?: throw java.io.IOException("Cannot open " + result)
+                    input.use { stream ->
+                        file.outputStream().use { output -> stream.copyTo(output) }
+                    }
+                    val installed =
+                        ModInstaller.installZip(file, args.game.programIdHex, progressCallback)
+                    if (installed == 0) {
+                        return@newInstance MessageDialogFragment.newInstance(
+                            activity,
+                            titleId = R.string.invalid_directory,
+                            descriptionId = R.string.mod_install_invalid_zip
+                        )
+                    }
+                    addonViewModel.refreshAddons(force = true)
+                    return@newInstance getString(R.string.mod_installed, installed)
+                } catch (e: Exception) {
+                    return@newInstance MessageDialogFragment.newInstance(
+                        activity,
+                        titleId = R.string.invalid_directory,
+                        descriptionString = e.message ?: ""
+                    )
+                } finally {
+                    file.delete()
+                }
+            }.show(parentFragmentManager, ProgressDialogFragment.TAG)
         }
 
     private val installGameUpdate =

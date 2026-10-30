@@ -56,7 +56,12 @@ namespace AndroidSettings {
 
         Settings::Setting<s32> theme{linkage, 0, "theme", Settings::Category::Android};
         Settings::Setting<s32> theme_mode{linkage, -1, "theme_mode", Settings::Category::Android};
+        #ifdef EDENBLUE
+        // EdenBlue ships with the blue theme selected (index 2 in ThemeHelper).
+        Settings::Setting<s32> static_theme_color{linkage, 2, "static_theme_color", Settings::Category::Android};
+#else
         Settings::Setting<s32> static_theme_color{linkage, 0, "static_theme_color", Settings::Category::Android};
+#endif
         Settings::Setting<bool> black_backgrounds{linkage, false, "black_backgrounds",
                                                   Settings::Category::Android};
         Settings::Setting<s32> app_language{linkage, 0, "app_language", Settings::Category::Android};
@@ -64,8 +69,23 @@ namespace AndroidSettings {
                                                   Settings::Category::Android};
         Settings::Setting<bool> enable_folder_button{linkage, true, "enable_folder_button",
                                                   Settings::Category::Android};
+#ifdef EDENBLUE
+        Settings::Setting<bool> enable_qlaunch_button{linkage, true, "enable_qlaunch_button",
+                                                  Settings::Category::Android};
+        // EdenBlue: boot straight into the Switch home menu (qlaunch) when firmware is installed.
+        Settings::Setting<bool> boot_to_home_menu{linkage, true, "boot_to_home_menu",
+                                                  Settings::Category::Android};
+        // EdenBlue: after a game exits, go back to the home menu instead of the games list.
+        Settings::Setting<bool> return_to_home_menu{linkage, true, "return_to_home_menu",
+                                                    Settings::Category::Android};
+#else
         Settings::Setting<bool> enable_qlaunch_button{linkage, false, "enable_qlaunch_button",
                                                   Settings::Category::Android};
+        Settings::Setting<bool> boot_to_home_menu{linkage, false, "boot_to_home_menu",
+                                                  Settings::Category::Android};
+        Settings::Setting<bool> return_to_home_menu{linkage, false, "return_to_home_menu",
+                                                    Settings::Category::Android};
+#endif
         Settings::Setting<bool> invert_confirm_back_controller_buttons{
             linkage, false, "invert_confirm_back_controller_buttons", Settings::Category::Android};
 

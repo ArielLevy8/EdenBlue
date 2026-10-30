@@ -191,6 +191,7 @@ class SettingsFragmentPresenter(
             MenuTag.SECTION_FREEDRENO -> addFreedrenoSettings(sl)
             MenuTag.SECTION_APPLETS -> addAppletSettings(sl)
             MenuTag.SECTION_CUSTOM_PATHS -> addCustomPathsSettings(sl)
+            MenuTag.SECTION_EDENBLUE -> addEdenBlueSettings(sl)
         }
         settingsList = sl
         adapter.submitList(settingsList) {
@@ -405,6 +406,16 @@ class SettingsFragmentPresenter(
 
     private fun addConfigSettings(sl: ArrayList<SettingsItem>) {
         sl.apply {
+            if (!NativeConfig.isPerGameConfigLoaded()) {
+                add(
+                    SubmenuSetting(
+                        titleId = R.string.edenblue_settings,
+                        descriptionId = R.string.edenblue_settings_description,
+                        iconId = R.drawable.ic_home,
+                        menuKey = MenuTag.SECTION_EDENBLUE
+                    )
+                )
+            }
             add(
                 SubmenuSetting(
                     titleId = R.string.preferences_system,
@@ -794,6 +805,49 @@ class SettingsFragmentPresenter(
     private fun addFreedrenoSettings(sl: ArrayList<SettingsItem>) {
         // No additional settings needed here - the SubmenuSetting handles navigation
         // This method is kept for consistency with other menu sections
+    }
+
+    private fun addEdenBlueSettings(sl: ArrayList<SettingsItem>) {
+        sl.apply {
+            add(HeaderSetting(R.string.edenblue_home_menu_header))
+            add(BooleanSetting.BOOT_TO_HOME_MENU.key)
+            add(BooleanSetting.RETURN_TO_HOME_MENU.key)
+            add(BooleanSetting.ENABLE_QLAUNCH_BUTTON.key)
+
+            add(HeaderSetting(R.string.edenblue_performance_header))
+            add(
+                RunnableSetting(
+                    titleId = R.string.sd865_optimizer,
+                    descriptionId = R.string.sd865_optimizer_description,
+                    isRunnable = !NativeLibrary.isRunning(),
+                    iconId = R.drawable.ic_graphics
+                ) {
+                    activity?.let {
+                        org.yuzu.yuzu_emu.fragments.Sd865OptimizerDialogFragment.newInstance()
+                            .show(it.supportFragmentManager, org.yuzu.yuzu_emu.fragments.Sd865OptimizerDialogFragment.TAG)
+                    }
+                }
+            )
+            add(
+                RunnableSetting(
+                    titleId = R.string.gpu_driver_fetcher,
+                    descriptionId = R.string.sd865_driver_fetcher_description,
+                    isRunnable = !NativeLibrary.isRunning(),
+                    iconId = R.drawable.ic_build
+                ) {
+                    activity?.let {
+                        val intent = android.content.Intent(it, SettingsSubscreenActivity::class.java)
+                        intent.putExtras(
+                            SettingsSubscreenActivityArgs(
+                                destination = SettingsSubscreen.DRIVER_FETCHER,
+                                game = null
+                            ).toBundle()
+                        )
+                        it.startActivity(intent)
+                    }
+                }
+            )
+        }
     }
 
     private fun addAppletSettings(sl: ArrayList<SettingsItem>) {

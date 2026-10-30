@@ -55,8 +55,10 @@ import org.yuzu.yuzu_emu.features.settings.model.BooleanSetting
 import org.yuzu.yuzu_emu.features.settings.model.IntSetting
 import org.yuzu.yuzu_emu.features.settings.model.Settings
 import org.yuzu.yuzu_emu.model.EmulationViewModel
+import org.yuzu.yuzu_emu.model.AppletInfo
 import org.yuzu.yuzu_emu.model.Game
 import org.yuzu.yuzu_emu.network.NetPlayManager
+import org.yuzu.yuzu_emu.utils.EdenBlueState
 import org.yuzu.yuzu_emu.utils.InputHandler
 import org.yuzu.yuzu_emu.utils.Log
 import org.yuzu.yuzu_emu.utils.MemoryUtil
@@ -795,6 +797,7 @@ class EmulationActivity : AppCompatActivity(), SensorEventListener, InputManager
             Log.info("[EmulationActivity] ROM swap native stop acknowledged")
             launchPendingRomSwap(force = false)
         } else if (status == 0 && emulationViewModel.programChanged.value == -1) {
+            markHomeMenuRelaunch()
             processSessionGame = null
             finish()
         } else if (!isWaitingForRomSwapStop) {
@@ -805,6 +808,23 @@ class EmulationActivity : AppCompatActivity(), SensorEventListener, InputManager
 
     fun updateSessionGame(game: Game?) {
         processSessionGame = game
+    }
+
+    /** EdenBlue: ask the games screen to bring the home menu back unless the home menu itself just exited. */
+    private fun markHomeMenuRelaunch() {
+        if (!BooleanSetting.RETURN_TO_HOME_MENU.getBoolean()) {
+            return
+        }
+        val stoppedGame = processSessionGame ?: intent.extras?.let {
+            BundleCompat.getParcelable(it, EXTRA_SELECTED_GAME, Game::class.java)
+        } ?: return
+        val homeMenuPath = runCatching {
+            NativeLibrary.getAppletLaunchPath(AppletInfo.QLaunch.entryId)
+        }.getOrDefault("")
+        if (homeMenuPath.isNotEmpty() && stoppedGame.path == homeMenuPath) {
+            return
+        }
+        EdenBlueState.pendingHomeMenuRelaunch = true
     }
 
     fun onProgramChanged(programIndex: Int) {

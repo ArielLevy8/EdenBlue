@@ -258,6 +258,7 @@ cmake_dependent_option(YUZU_INSTALL_UDEV_RULES "Install udev rules for gyro acce
 option(YUZU_DOWNLOAD_ANDROID_VVL "Download validation layer binary for android" ON)
 
 option(YUZU_LEGACY "Apply patches that improve compatibility with older GPUs (e.g. Snapdragon 865) at the cost of performance" OFF)
+option(EDENBLUE "Build the EdenBlue flavor (Snapdragon 865 / Adreno 650 tuned fork)" OFF)
 
 option(NIGHTLY_BUILD "Use Nightly qualifiers in the update checker and build metadata" OFF)
 

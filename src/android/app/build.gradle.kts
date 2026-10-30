@@ -185,9 +185,30 @@ android {
     // this should be "Eden <flavorName>"
     flavorDimensions.add("version")
     productFlavors {
-        create("mainline") {
+        create("edenBlue") {
             dimension = "version"
             isDefault = true
+            // Snapdragon 865 handhelds (Retroid Pocket 5 / Flip 2, phones) ship Android 10+.
+            minSdk = 29
+            manifestPlaceholders += mapOf("appNameBase" to "EdenBlue")
+            resValue("string", "app_name_suffixed", "EdenBlue")
+            applicationId = "dev.edenblue.emulator"
+
+            externalNativeBuild {
+                cmake {
+                    // Legacy patches are what upstream recommends for Adreno 6xx GPUs.
+                    arguments.add("-DEDENBLUE=ON")
+                    arguments.add("-DYUZU_LEGACY=ON")
+                }
+            }
+
+            ndk {
+                abiFilters += listOf("arm64-v8a")
+            }
+        }
+
+        create("mainline") {
+            dimension = "version"
             minSdk = 33
 
             manifestPlaceholders += mapOf("appNameBase" to "Eden")
@@ -267,10 +288,12 @@ android {
     productFlavors.all {
         val currentName = manifestPlaceholders["appNameBase"] as? String ?: "Eden"
         val suffix = if (isNightly) " Nightly" else ""
+        val shortName = if (name == "edenBlue") "EdenBlue" else "Eden"
 
         // apply nightly suffix I/A
         resValue("string", "app_name_suffixed", "$currentName$suffix")
-        resValue("string", "app_name", "Eden$suffix")
+        resValue("string", "app_name", "$shortName$suffix")
+        buildConfigField("boolean", "EDENBLUE", if (name == "edenBlue") "true" else "false")
     }
 
     sourceSets {

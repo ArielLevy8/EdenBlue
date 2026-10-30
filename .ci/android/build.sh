@@ -24,7 +24,7 @@ Options:
     -r, --release        	Enable update checker. If set, sets the DEVEL bool variable to false.
                          	By default, DEVEL is true.
     -t, --target <FLAVOR> 	Build flavor (variable: TARGET)
-                          	Valid values are: legacy, optimized, standard, chromeos
+                          	Valid values are: legacy, optimized, standard, chromeos, edenblue
                           	Default: standard
     -b, --build-type <TYPE>	Build type (variable: TYPE)
                           	Valid values are: Release, RelWithDebInfo, Debug
@@ -81,6 +81,7 @@ case "$TARGET_LOWER" in
 	optimized) FLAVOR=GenshinSpoof ;;
 	standard) FLAVOR=Mainline ;;
     chromeos) FLAVOR=ChromeOS ;;
+    edenblue) FLAVOR=EdenBlue ;;
 	*) die "Invalid build flavor $TARGET."
 esac
 
@@ -103,6 +104,10 @@ cd src/android
 chmod +x ./gradlew
 
 set -- "$@" -DUSE_CCACHE="${CCACHE}"
+
+if [ "$FLAVOR" = "EdenBlue" ]; then
+    set -- "$@" -DEDENBLUE=ON -DYUZU_LEGACY=ON
+fi
 
 nightly() {
     [ "$NIGHTLY" = "true" ]

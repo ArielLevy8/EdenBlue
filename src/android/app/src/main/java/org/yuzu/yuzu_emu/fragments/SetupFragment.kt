@@ -44,6 +44,7 @@ import org.yuzu.yuzu_emu.ui.main.MainActivity
 import org.yuzu.yuzu_emu.utils.DirectoryInitialization
 import org.yuzu.yuzu_emu.utils.LosslessScalingHelper
 import org.yuzu.yuzu_emu.utils.NativeConfig
+import org.yuzu.yuzu_emu.utils.Sd865Optimizer
 import org.yuzu.yuzu_emu.utils.ViewUtils
 import org.yuzu.yuzu_emu.utils.ViewUtils.setVisible
 import org.yuzu.yuzu_emu.utils.collect
@@ -253,6 +254,46 @@ class SetupFragment : Fragment() {
                             NativeLibrary.isFirmwareAvailable() && NativeConfig.getGameDirs()
                                 .isNotEmpty()
                         ) {
+                            PageState.COMPLETE
+                        } else {
+                            PageState.INCOMPLETE
+                        }
+                    }
+                )
+            )
+            add(
+                SetupPage(
+                    R.drawable.ic_graphics,
+                    R.string.sd865_optimizer_setup,
+                    R.string.sd865_optimizer_setup_description,
+                    mutableListOf<PageButton>().apply {
+                        add(
+                            PageButton(
+                                R.drawable.ic_graphics,
+                                R.string.sd865_optimizer_apply,
+                                R.string.sd865_optimizer_description,
+                                {
+                                    pageButtonCallback = it
+                                    Sd865Optimizer.apply()
+                                    android.widget.Toast.makeText(
+                                        requireContext(),
+                                        R.string.sd865_optimizer_applied,
+                                        android.widget.Toast.LENGTH_SHORT
+                                    ).show()
+                                    checkForButtonState.invoke()
+                                },
+                                {
+                                    if (Sd865Optimizer.isApplied()) {
+                                        ButtonState.BUTTON_ACTION_COMPLETE
+                                    } else {
+                                        ButtonState.BUTTON_ACTION_INCOMPLETE
+                                    }
+                                }
+                            )
+                        )
+                    },
+                    {
+                        if (Sd865Optimizer.isApplied()) {
                             PageState.COMPLETE
                         } else {
                             PageState.INCOMPLETE
