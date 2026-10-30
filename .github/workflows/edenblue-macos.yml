@@ -1,0 +1,49 @@
+# SPDX-FileCopyrightText: Copyright 2026 EdenBlue Project
+# SPDX-License-Identifier: GPL-3.0-or-later
+
+name: EdenBlue macOS
+# Manual only: macOS runner minutes count ten times against a private repository's allowance.
+
+on:
+  workflow_dispatch:
+
+jobs:
+  build:
+    name: Build EdenBlue.app
+    runs-on: macos-15
+    timeout-minutes: 300
+
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: Install dependencies
+        env:
+          HOMEBREW_NO_AUTO_UPDATE: "1"
+        run: |
+          brew install autoconf automake boost ffmpeg fmt glslang hidapi libtool libusb lz4 ninja \
+            nlohmann-json openssl pkg-config qt@6 sdl3 speexdsp zlib zstd molten-vk vulkan-loader \
+            spirv-tools
+
+      - name: Configure
+        run: |
+          cmake -S . -B build -G Ninja -DCMAKE_BUILD_TYPE=Release -DYUZU_TESTS=OFF -DYUZU_CMD=OFF \
+            -DCMAKE_PREFIX_PATH="$(brew --prefix qt@6)"
+
+      - name: Build
+        run: cmake --build build --target yuzu -- -k 0
+
+      - name: Package
+        run: |
+          mkdir -p out
+          mv build/bin/eden.app out/EdenBlue.app
+          "$(brew --prefix qt@6)/bin/macdeployqt" out/EdenBlue.app
+          codesign --force --deep --sign - out/EdenBlue.app
+          ditto -c -k --keepParent out/EdenBlue.app "out/EdenBlue-$(git rev-parse --short HEAD)-macos-arm64.zip"
+
+      - uses: actions/upload-artifact@v4
+        with:
+          name: EdenBlue-macos
+          path: out/*.zip
+          if-no-files-found: error

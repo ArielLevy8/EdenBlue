@@ -27,13 +27,18 @@ import tool, a mod browser and a darker blue look. It installs next to regular E
 | Snapdragon 865, 870, 888 | `EdenBlue-<version>-legacy.apk` |
 | Snapdragon 7+ Gen 2, 8 Gen 1 and newer | `EdenBlue-<version>-modern.apk` |
 | Windows PC | `EdenBlue-<version>-windows-x64.zip` |
+| Mac with Apple Silicon | `EdenBlue-<version>-macos-arm64.zip` |
 
 The legacy build carries Eden's patches for older Adreno GPUs, which cost some performance on
 newer chips. Both APKs need Android 10 or newer on arm64. None of these builds have been tested on
 real hardware yet, so reports are welcome.
 
-The Windows build is the standard Eden desktop app under the EdenBlue name. The features below are
-Android only.
+The Windows and Mac builds are the standard Eden desktop app under the EdenBlue name. The features
+below are Android only.
+
+The Mac app is not notarized, so macOS will block it the first time. Right-click it and choose Open,
+or allow it under System Settings > Privacy & Security. Eden describes macOS support as largely
+untested, so expect crashes and Vulkan problems.
 
 ## What EdenBlue adds
 
@@ -82,7 +87,8 @@ The APK is written to `artifacts/`. Set `EDENBLUE_VARIANT=modern` to build witho
 patches.
 
 CI: pushing an `edenblue-*` tag runs `.github/workflows/edenblue-android.yml` and
-`edenblue-windows.yml`, which attach both APKs and the Windows zip to a GitHub release.
+`edenblue-windows.yml`, which attach both APKs and the Windows zip to a GitHub release. The Mac
+build in `edenblue-macos.yml` is started by hand.
 
 ## Upstream
 
