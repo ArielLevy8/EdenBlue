@@ -7,12 +7,14 @@ import android.Manifest
 import android.content.ActivityNotFoundException
 import android.content.Intent
 import android.content.pm.PackageManager
+import android.net.Uri
 import android.os.Bundle
 import android.provider.DocumentsContract
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import android.widget.Toast
+import androidx.activity.result.contract.ActivityResultContracts
 import androidx.appcompat.app.AppCompatActivity
 import androidx.core.app.ActivityCompat
 import androidx.core.app.NotificationCompat
@@ -26,6 +28,7 @@ import androidx.fragment.app.activityViewModels
 import androidx.navigation.findNavController
 import androidx.navigation.fragment.findNavController
 import androidx.recyclerview.widget.GridLayoutManager
+import com.google.android.material.dialog.MaterialAlertDialogBuilder
 import com.google.android.material.transition.MaterialSharedAxis
 import org.yuzu.yuzu_emu.HomeNavigationDirections
 import org.yuzu.yuzu_emu.NativeLibrary
@@ -38,10 +41,13 @@ import org.yuzu.yuzu_emu.features.fetcher.SpacingItemDecoration
 import org.yuzu.yuzu_emu.features.settings.model.Settings
 import org.yuzu.yuzu_emu.features.settings.ui.SettingsSubscreen
 import org.yuzu.yuzu_emu.model.DriverViewModel
+import org.yuzu.yuzu_emu.model.GameDir
+import org.yuzu.yuzu_emu.model.GamesViewModel
 import org.yuzu.yuzu_emu.model.HomeSetting
 import org.yuzu.yuzu_emu.model.HomeViewModel
 import org.yuzu.yuzu_emu.ui.main.MainActivity
 import org.yuzu.yuzu_emu.utils.FileUtil
+import org.yuzu.yuzu_emu.utils.GameImporter
 import org.yuzu.yuzu_emu.utils.GpuDriverHelper
 import org.yuzu.yuzu_emu.utils.Log
 import org.yuzu.yuzu_emu.utils.LosslessScalingHelper
@@ -55,10 +61,77 @@ class HomeSettingsFragment : Fragment() {
 
     private val homeViewModel: HomeViewModel by activityViewModels()
     private val driverViewModel: DriverViewModel by activityViewModels()
+    private val gamesViewModel: GamesViewModel by activityViewModels()
+
+    private val pickGameFiles =
+        registerForActivityResult(ActivityResultContracts.OpenMultipleDocuments()) { sources ->
+            if (sources.isNotEmpty()) {
+                confirmGameImport(sources)
+            }
+        }
+
+    private val pickRomsFolder =
+        registerForActivityResult(ActivityResultContracts.OpenDocumentTree()) { uri ->
+            if (uri != null) {
+                GameImporter.saveDestination(uri)
+                if (gamesViewModel.folders.value.none { it.uriString == uri.toString() }) {
+                    gamesViewModel.addFolder(GameDir(uri.toString(), false), false)
+                }
+                pickGameFiles.launch(arrayOf("*/*"))
+            }
+        }
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         reenterTransition = MaterialSharedAxis(MaterialSharedAxis.X, false)
+    }
+
+    private fun startGameImport() {
+        if (GameImporter.destination() == null) {
+            Toast.makeText(requireContext(), R.string.import_games_pick_folder, Toast.LENGTH_LONG)
+                .show()
+            pickRomsFolder.launch(null)
+        } else {
+            pickGameFiles.launch(arrayOf("*/*"))
+        }
+    }
+
+    private fun confirmGameImport(sources: List<Uri>) {
+        MaterialAlertDialogBuilder(requireContext())
+            .setTitle(R.string.import_games)
+            .setMessage(getString(R.string.import_games_confirm, sources.size))
+            .setPositiveButton(R.string.import_games_remove) { _, _ -> runGameImport(sources, true) }
+            .setNeutralButton(R.string.import_games_keep) { _, _ -> runGameImport(sources, false) }
+            .setNegativeButton(android.R.string.cancel, null)
+            .show()
+    }
+
+    private fun runGameImport(sources: List<Uri>, removeOriginals: Boolean) {
+        val destination = GameImporter.destination() ?: return
+        val activity = requireActivity()
+        ProgressDialogFragment.newInstance(
+            activity,
+            R.string.import_games_running,
+            true
+        ) { progressCallback, _ ->
+            val result =
+                GameImporter.import(sources, destination, removeOriginals, progressCallback)
+            gamesViewModel.reloadGames(false)
+            val summary = activity.getString(
+                R.string.import_games_result,
+                result.imported,
+                result.alreadyPresent,
+                result.originalsRemoved
+            )
+            if (result.rejected.isEmpty()) {
+                summary
+            } else {
+                summary + "\n" + activity.getString(
+                    R.string.import_games_rejected,
+                    result.rejected.joinToString()
+                )
+            }
+        }.show(parentFragmentManager, ProgressDialogFragment.TAG)
     }
 
     override fun onCreateView(
@@ -173,13 +246,21 @@ class HomeSettingsFragment : Fragment() {
             }
             add(
                 HomeSetting(
-                    R.string.sd865_optimizer,
-                    R.string.sd865_optimizer_description,
+                    R.string.device_tuning,
+                    R.string.device_tuning_description,
                     R.drawable.ic_graphics,
                     {
-                        Sd865OptimizerDialogFragment.newInstance()
-                            .show(parentFragmentManager, Sd865OptimizerDialogFragment.TAG)
+                        DeviceTuningDialogFragment.newInstance()
+                            .show(parentFragmentManager, DeviceTuningDialogFragment.TAG)
                     }
+                )
+            )
+            add(
+                HomeSetting(
+                    R.string.import_games,
+                    R.string.import_games_description,
+                    R.drawable.ic_import,
+                    { startGameImport() }
                 )
             )
             add(

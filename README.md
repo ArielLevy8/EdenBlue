@@ -14,23 +14,26 @@ SPDX-License-Identifier: GPL-3.0-or-later
   <br>
 </h1>
 
-<h4 align="center">A fork of the <a href="https://git.eden-emu.dev/eden-emu/eden">Eden</a> Nintendo Switch emulator for Android, tuned for Snapdragon 865 devices with the Adreno 650 GPU.</h4>
+<h4 align="center">A fork of the <a href="https://git.eden-emu.dev/eden-emu/eden">Eden</a> Nintendo Switch emulator for Android, with presets from the Snapdragon 865 to the newest Snapdragon chips.</h4>
 
-EdenBlue tracks Eden `master` and adds a Switch-like startup flow, a Snapdragon 865
-optimizer, an in-app mod browser and a handful of quality-of-life changes. It installs
-next to regular Eden builds (package `dev.edenblue.emulator`) and keeps its own data.
+EdenBlue is based on Eden `master` and adds device tuning, built-in frame generation, a game
+import tool, a mod browser and a darker blue look. It installs next to regular Eden builds
+(package `dev.edenblue.emulator`) and keeps its own data.
 
-## Target devices
+## Which download to use
 
-EdenBlue is built from Eden's **legacy** code path, which upstream recommends for the
-Snapdragon 865 / Adreno 650, plus the `EDENBLUE` flavor. Intended devices (none of these
-have been tested yet, so reports are welcome):
+| Your chip | Download |
+|---|---|
+| Snapdragon 865, 870, 888 | `EdenBlue-<version>-legacy.apk` |
+| Snapdragon 7+ Gen 2, 8 Gen 1 and newer | `EdenBlue-<version>-modern.apk` |
+| Windows PC | `EdenBlue-<version>-windows-x64.zip` |
 
-- Retroid Pocket 5, Retroid Pocket Flip 2, Retroid Pocket Mini V2
-- Snapdragon 865 phones (OnePlus 8 / 8 Pro / 8T, Snapdragon Galaxy S20, Xiaomi Mi 10, Poco F2 Pro, ...)
-- Android 10 or newer, arm64 only
+The legacy build carries Eden's patches for older Adreno GPUs, which cost some performance on
+newer chips. Both APKs need Android 10 or newer on arm64. None of these builds have been tested on
+real hardware yet, so reports are welcome.
 
-Other devices run EdenBlue too, but the tuned profile assumes an Adreno 650.
+The Windows build is the standard Eden desktop app under the EdenBlue name. The features below are
+Android only.
 
 ## What EdenBlue adds
 
@@ -38,10 +41,12 @@ Other devices run EdenBlue too, but the tuned profile assumes an Adreno 650.
 |---|---|
 | **Boot to home menu** (off by default). Optionally open straight into the Switch home menu (QLaunch). | Settings → EdenBlue |
 | **Return to home menu** after a game exits (off by default). | Settings → EdenBlue |
-| **Snapdragon 865 optimizer**: one tap applies a tuned profile (handheld 1x, low GPU accuracy, async shaders, EDS2, GPU ASTC, 3 pipeline workers, ...) and can download and select the recommended Mr. Purple Turnip driver. Also offered during first-run setup. | Settings home, Settings → EdenBlue, first-run setup |
+| **Device tuning**: pick your chip (the detected one is preselected) to apply a settings preset for your GPU generation and install the driver Eden recommends for that GPU. Covers Snapdragon 865 through 8 Elite Gen 5. These are rule-based presets, not machine learning. | Settings home, Settings → EdenBlue, first-run setup |
+| **Built-in frame generation**: motion-compensated interpolation that needs no Lossless.dll. It is classical block matching, not a neural network, so HUDs and fast motion can ghost. Lossless Scaling stays selectable. | Settings → Frame generation, in-game quick settings |
+| **Import games**: moves `.nsp` and `.xci` files you already have, or ZIPs containing them, into your ROMs folder. Originals are only removed after a full copy. | Settings home |
 | **Mod browser**: downloads the **Ultrawide & FPS mods** collection (`Fl4sh9174/Switch-Emulator-Ultrawide-FPS-Mods`) from GitHub and installs each one into the right game's `load/` folder, matched by title ID. | Settings home, game → Mod browser, game → Add-ons → Install |
 | **Install mods from ZIP**: pick any mod ZIP (nested folders are handled) and it lands in the game's `load/` folder. | game → Add-ons → Install → Mods (ZIP file) |
-| QLaunch button shown by default, blue theme by default, blue launcher and splash icons. | |
+| QLaunch button shown by default, dark blue theme, blue launcher and splash icons. | |
 
 ## Keys and firmware
 
@@ -52,9 +57,9 @@ the first-run setup (or later under *Manage EdenBlue data*):
 1. Install the APK and open EdenBlue.
 2. On the *Emulator data* page, tap **Keys** and pick your `prod.keys` (or a ZIP that contains it).
 3. Tap **Firmware** and pick your firmware ZIP.
-4. Add your games folder, apply the Snapdragon 865 profile and finish setup.
+4. Add your games folder, apply device tuning and finish setup.
 
-The home menu needs both keys and firmware. Without them EdenBlue falls back to the games list.
+The home menu needs both keys and firmware.
 
 ## Download
 
@@ -73,11 +78,11 @@ cd EdenBlue
 .ci/android/build.sh -t edenblue -b Release
 ```
 
-The APK is written to `artifacts/`. `./gradlew assembleEdenBlueRelease` from `src/android`
-works too. The flavor passes `-DEDENBLUE=ON -DYUZU_LEGACY=ON` to CMake.
+The APK is written to `artifacts/`. Set `EDENBLUE_VARIANT=modern` to build without the legacy
+patches.
 
-CI: `.github/workflows/edenblue-android.yml` builds every push and attaches the APK to a
-GitHub release when an `edenblue-*` tag (for example `edenblue-0.1.0`) is pushed.
+CI: pushing an `edenblue-*` tag runs `.github/workflows/edenblue-android.yml` and
+`edenblue-windows.yml`, which attach both APKs and the Windows zip to a GitHub release.
 
 ## Upstream
 

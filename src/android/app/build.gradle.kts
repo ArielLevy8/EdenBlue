@@ -196,9 +196,11 @@ android {
 
             externalNativeBuild {
                 cmake {
-                    // Legacy patches are what upstream recommends for Adreno 6xx GPUs.
+                    // Legacy patches suit Adreno 6xx GPUs but hold back newer chips.
                     arguments.add("-DEDENBLUE=ON")
-                    arguments.add("-DYUZU_LEGACY=ON")
+                    if (!providers.gradleProperty("edenblueModern").isPresent) {
+                        arguments.add("-DYUZU_LEGACY=ON")
+                    }
                 }
             }
 

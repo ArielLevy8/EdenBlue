@@ -106,7 +106,10 @@ chmod +x ./gradlew
 set -- "$@" -DUSE_CCACHE="${CCACHE}"
 
 if [ "$FLAVOR" = "EdenBlue" ]; then
-    set -- "$@" -DEDENBLUE=ON -DYUZU_LEGACY=ON
+    set -- "$@" -DEDENBLUE=ON
+    if [ "$EDENBLUE_VARIANT" != "modern" ]; then
+        set -- "$@" -DYUZU_LEGACY=ON
+    fi
 fi
 
 nightly() {
@@ -131,6 +134,7 @@ echo "-- building..."
     -Dorg.gradle.workers.max="${NUM_JOBS}" \
     -PYUZU_ANDROID_ARGS="$*" \
     -Pnightly="$NIGHTLY" \
+    ${EDENBLUE_VARIANT:+$([ "$EDENBLUE_VARIANT" = "modern" ] && echo -PedenblueModern=true)} \
     --info
 
 if [ -n "${ANDROID_KEYSTORE_B64}" ]; then

@@ -4,11 +4,10 @@
 name: EdenBlue Android
 # Builds the edenBlue flavor APK; tags edenblue-* also publish a release.
 
+# Tags only: each build uses about an hour of the private repository's Actions minutes.
 on:
   push:
-    branches: [ master ]
     tags: [ 'edenblue-*' ]
-  pull_request:
   workflow_dispatch:
 
 concurrency:
@@ -20,9 +19,13 @@ permissions:
 
 jobs:
   build:
-    name: Build EdenBlue APK
+    name: Build EdenBlue APK (${{ matrix.variant }})
     runs-on: ubuntu-24.04
     timeout-minutes: 300
+    strategy:
+      fail-fast: false
+      matrix:
+        variant: [ legacy, modern ]
 
     steps:
       - name: Free disk space
@@ -58,13 +61,14 @@ jobs:
         uses: actions/cache@v4
         with:
           path: ~/.cache/ccache
-          key: ccache-edenblue-${{ runner.os }}-${{ github.sha }}
+          key: ccache-edenblue-${{ matrix.variant }}-${{ github.sha }}
           restore-keys: |
-            ccache-edenblue-${{ runner.os }}-
+            ccache-edenblue-${{ matrix.variant }}-
 
       - name: Build
         env:
           CCACHE: "true"
+          EDENBLUE_VARIANT: ${{ matrix.variant }}
           GIT_TAG_NAME: ${{ startsWith(github.ref, 'refs/tags/') && github.ref_name || '' }}
         run: |
           export ANDROID_SDK_ROOT="$ANDROID_HOME"
@@ -76,12 +80,12 @@ jobs:
           VERSION="${GITHUB_REF_NAME}"
           if [ "${GITHUB_REF_TYPE}" != "tag" ]; then VERSION="$(git rev-parse --short HEAD)"; fi
           mkdir -p out
-          for f in artifacts/*.apk; do cp "$f" "out/EdenBlue-${VERSION}.apk"; done
+          for f in artifacts/*.apk; do cp "$f" "out/EdenBlue-${VERSION}-${{ matrix.variant }}.apk"; done
           ls -l out
 
       - uses: actions/upload-artifact@v4
         with:
-          name: EdenBlue-apk
+          name: EdenBlue-apk-${{ matrix.variant }}
           path: out/*.apk
           if-no-files-found: error
 
@@ -92,7 +96,10 @@ jobs:
           files: out/*.apk
           generate_release_notes: true
           body: |
-            EdenBlue ${{ github.ref_name }} for Snapdragon 865 / Adreno 650 devices.
+            EdenBlue ${{ github.ref_name }} for Snapdragon devices.
+
+            Use the legacy APK on Snapdragon 865, 870 and 888. Use the modern APK on Snapdragon
+            8 Gen 1 and newer.
 
             Install the APK, then import your own `prod.keys` and firmware in the first-run setup
             (Nintendo keys and firmware are never bundled). See the README for details.

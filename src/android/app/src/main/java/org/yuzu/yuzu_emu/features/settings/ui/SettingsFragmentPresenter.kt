@@ -823,33 +823,16 @@ class SettingsFragmentPresenter(
             add(HeaderSetting(R.string.edenblue_performance_header))
             add(
                 RunnableSetting(
-                    titleId = R.string.sd865_optimizer,
-                    descriptionId = R.string.sd865_optimizer_description,
+                    titleId = R.string.device_tuning,
+                    descriptionId = R.string.device_tuning_description,
                     isRunnable = !NativeLibrary.isRunning(),
                     iconId = R.drawable.ic_graphics
                 ) {
                     activity?.let {
-                        org.yuzu.yuzu_emu.fragments.Sd865OptimizerDialogFragment.newInstance()
-                            .show(it.supportFragmentManager, org.yuzu.yuzu_emu.fragments.Sd865OptimizerDialogFragment.TAG)
-                    }
-                }
-            )
-            add(
-                RunnableSetting(
-                    titleId = R.string.gpu_driver_fetcher,
-                    descriptionId = R.string.sd865_driver_fetcher_description,
-                    isRunnable = !NativeLibrary.isRunning(),
-                    iconId = R.drawable.ic_build
-                ) {
-                    activity?.let {
-                        val intent = android.content.Intent(it, SettingsSubscreenActivity::class.java)
-                        intent.putExtras(
-                            SettingsSubscreenActivityArgs(
-                                destination = SettingsSubscreen.DRIVER_FETCHER,
-                                game = null
-                            ).toBundle()
+                        org.yuzu.yuzu_emu.fragments.DeviceTuningDialogFragment.newInstance().show(
+                            it.supportFragmentManager,
+                            org.yuzu.yuzu_emu.fragments.DeviceTuningDialogFragment.TAG
                         )
-                        it.startActivity(intent)
                     }
                 }
             )

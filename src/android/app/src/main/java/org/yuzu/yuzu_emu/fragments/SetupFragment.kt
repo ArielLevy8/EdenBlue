@@ -41,10 +41,10 @@ import org.yuzu.yuzu_emu.model.SetupCallback
 import org.yuzu.yuzu_emu.model.SetupPage
 import org.yuzu.yuzu_emu.model.PageState
 import org.yuzu.yuzu_emu.ui.main.MainActivity
+import org.yuzu.yuzu_emu.utils.DeviceTuning
 import org.yuzu.yuzu_emu.utils.DirectoryInitialization
 import org.yuzu.yuzu_emu.utils.LosslessScalingHelper
 import org.yuzu.yuzu_emu.utils.NativeConfig
-import org.yuzu.yuzu_emu.utils.Sd865Optimizer
 import org.yuzu.yuzu_emu.utils.ViewUtils
 import org.yuzu.yuzu_emu.utils.ViewUtils.setVisible
 import org.yuzu.yuzu_emu.utils.collect
@@ -264,26 +264,21 @@ class SetupFragment : Fragment() {
             add(
                 SetupPage(
                     R.drawable.ic_graphics,
-                    R.string.sd865_optimizer_setup,
-                    R.string.sd865_optimizer_setup_description,
+                    R.string.device_tuning,
+                    R.string.device_tuning_setup_description,
                     mutableListOf<PageButton>().apply {
                         add(
                             PageButton(
                                 R.drawable.ic_graphics,
-                                R.string.sd865_optimizer_apply,
-                                R.string.sd865_optimizer_description,
+                                R.string.device_tuning,
+                                R.string.device_tuning_description,
                                 {
                                     pageButtonCallback = it
-                                    Sd865Optimizer.apply()
-                                    android.widget.Toast.makeText(
-                                        requireContext(),
-                                        R.string.sd865_optimizer_applied,
-                                        android.widget.Toast.LENGTH_SHORT
-                                    ).show()
-                                    checkForButtonState.invoke()
+                                    DeviceTuningDialogFragment.newInstance()
+                                        .show(childFragmentManager, DeviceTuningDialogFragment.TAG)
                                 },
                                 {
-                                    if (Sd865Optimizer.isApplied()) {
+                                    if (DeviceTuning.isApplied()) {
                                         ButtonState.BUTTON_ACTION_COMPLETE
                                     } else {
                                         ButtonState.BUTTON_ACTION_INCOMPLETE
@@ -293,7 +288,7 @@ class SetupFragment : Fragment() {
                         )
                     },
                     {
-                        if (Sd865Optimizer.isApplied()) {
+                        if (DeviceTuning.isApplied()) {
                             PageState.COMPLETE
                         } else {
                             PageState.INCOMPLETE
@@ -324,6 +319,11 @@ class SetupFragment : Fragment() {
                 ) { PageState.UNDEFINED }
             )
         }
+
+        childFragmentManager.setFragmentResultListener(
+            DeviceTuningDialogFragment.REQUEST_APPLIED,
+            viewLifecycleOwner
+        ) { _, _ -> checkForButtonState.invoke() }
 
         homeViewModel.shouldPageForward.collect(
             viewLifecycleOwner,

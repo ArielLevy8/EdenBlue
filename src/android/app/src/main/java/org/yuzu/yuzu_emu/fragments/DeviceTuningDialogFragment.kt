@@ -19,45 +19,63 @@ import okhttp3.OkHttpClient
 import org.yuzu.yuzu_emu.R
 import org.yuzu.yuzu_emu.databinding.DialogProgressBinding
 import org.yuzu.yuzu_emu.model.DriverViewModel
+import org.yuzu.yuzu_emu.utils.DeviceTuning
 import org.yuzu.yuzu_emu.utils.GpuDriverHelper
-import org.yuzu.yuzu_emu.utils.Sd865Optimizer
 
-/** Explains and applies the Snapdragon 865 / Adreno 650 profile, optionally installing the Turnip driver. */
-class Sd865OptimizerDialogFragment : DialogFragment() {
+/** Lets the user pick their chip (the detected one is preselected), then applies its preset and driver. */
+class DeviceTuningDialogFragment : DialogFragment() {
     private val driverViewModel: DriverViewModel by activityViewModels()
     private val client = OkHttpClient()
 
+    private var selected = 0
+
     override fun onCreateDialog(savedInstanceState: Bundle?): Dialog {
-        val message = StringBuilder(getString(R.string.sd865_optimizer_dialog_message))
-        if (!GpuDriverHelper.isAdrenoGpu()) {
-            message.append("\n\n").append(getString(R.string.sd865_optimizer_not_adreno_warning))
+        val gpuModel = GpuDriverHelper.hookLibPath?.let {
+            GpuDriverHelper.getGpuModel(hookLibPath = it)
         }
+        val detected = DeviceTuning.detectChip(gpuModel)
+        selected = savedInstanceState?.getInt(SELECTED) ?: detected?.let {
+            DeviceTuning.chips.indexOf(it)
+        } ?: 0
+
+        val names = DeviceTuning.chips.map {
+            if (it == detected) getString(R.string.device_tuning_detected, it.label) else it.label
+        }.toTypedArray()
 
         return MaterialAlertDialogBuilder(requireContext())
-            .setTitle(R.string.sd865_optimizer)
-            .setMessage(message)
-            .setPositiveButton(R.string.sd865_optimizer_apply) { _, _ ->
-                Sd865Optimizer.apply()
-                Toast.makeText(
-                    requireContext(),
-                    R.string.sd865_optimizer_applied,
-                    Toast.LENGTH_SHORT
-                ).show()
+            .setTitle(R.string.device_tuning)
+            .setSingleChoiceItems(names, selected) { _, which -> selected = which }
+            .setPositiveButton(R.string.device_tuning_apply_with_driver) { _, _ ->
+                val chip = applyPreset()
+                installDriver(requireActivity(), chip)
             }
-            .setNeutralButton(R.string.sd865_optimizer_driver) { _, _ ->
-                installRecommendedDriver(requireActivity())
-            }
+            .setNeutralButton(R.string.device_tuning_apply) { _, _ -> applyPreset() }
             .setNegativeButton(R.string.close, null)
             .create()
     }
 
-    private fun installRecommendedDriver(activity: FragmentActivity) {
-        if (!GpuDriverHelper.supportsCustomDriverLoading()) {
-            Toast.makeText(
-                activity,
-                R.string.sd865_optimizer_driver_unsupported,
-                Toast.LENGTH_LONG
-            ).show()
+    override fun onSaveInstanceState(outState: Bundle) {
+        super.onSaveInstanceState(outState)
+        outState.putInt(SELECTED, selected)
+    }
+
+    private fun applyPreset(): DeviceTuning.Chip {
+        val chip = DeviceTuning.chips[selected]
+        DeviceTuning.apply(chip)
+        parentFragmentManager.setFragmentResult(REQUEST_APPLIED, Bundle())
+        Toast.makeText(
+            requireContext(),
+            getString(R.string.device_tuning_applied, chip.name),
+            Toast.LENGTH_SHORT
+        ).show()
+        return chip
+    }
+
+    private fun installDriver(activity: FragmentActivity, chip: DeviceTuning.Chip) {
+        val source = DeviceTuning.driverFor(chip.adreno)
+        if (source == null || !GpuDriverHelper.supportsCustomDriverLoading()) {
+            Toast.makeText(activity, R.string.device_tuning_driver_unsupported, Toast.LENGTH_LONG)
+                .show()
             return
         }
 
@@ -74,11 +92,11 @@ class Sd865OptimizerDialogFragment : DialogFragment() {
         CoroutineScope(Dispatchers.Main).launch {
             try {
                 val installedName = withContext(Dispatchers.IO) {
-                    val release = Sd865Optimizer.findRecommendedDriver(client)
+                    val release = DeviceTuning.findDriver(client, source)
                     withContext(Dispatchers.Main) {
                         dialogBinding.status.text = release.name
                     }
-                    Sd865Optimizer.downloadAndInstallDriver(
+                    DeviceTuning.downloadAndInstallDriver(
                         activity,
                         client,
                         release,
@@ -88,13 +106,13 @@ class Sd865OptimizerDialogFragment : DialogFragment() {
                 progressDialog.dismiss()
                 Toast.makeText(
                     activity,
-                    activity.getString(R.string.sd865_optimizer_driver_installed, installedName),
+                    activity.getString(R.string.device_tuning_driver_installed, installedName),
                     Toast.LENGTH_LONG
                 ).show()
             } catch (e: Exception) {
                 progressDialog.dismiss()
                 MaterialAlertDialogBuilder(activity)
-                    .setTitle(R.string.sd865_optimizer_driver_failed)
+                    .setTitle(R.string.device_tuning_driver_failed)
                     .setMessage(e.message)
                     .setPositiveButton(R.string.ok) { dialog, _ -> dialog.cancel() }
                     .show()
@@ -103,8 +121,10 @@ class Sd865OptimizerDialogFragment : DialogFragment() {
     }
 
     companion object {
-        const val TAG = "Sd865OptimizerDialogFragment"
+        const val TAG = "DeviceTuningDialogFragment"
+        const val REQUEST_APPLIED = "DeviceTuningApplied"
+        private const val SELECTED = "Selected"
 
-        fun newInstance(): Sd865OptimizerDialogFragment = Sd865OptimizerDialogFragment()
+        fun newInstance(): DeviceTuningDialogFragment = DeviceTuningDialogFragment()
     }
 }

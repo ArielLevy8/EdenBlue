@@ -1286,27 +1286,35 @@
 
     <!-- EdenBlue -->
     <string name="edenblue_settings" translatable="false">EdenBlue</string>
-    <string name="edenblue_settings_description">Home menu boot, Snapdragon 865 tuning and other EdenBlue options</string>
+    <string name="edenblue_settings_description">Home menu boot, device tuning and other EdenBlue options</string>
     <string name="edenblue_home_menu_header">Switch home menu</string>
-    <string name="edenblue_performance_header">Snapdragon 865 / Adreno 650</string>
+    <string name="edenblue_performance_header">Performance</string>
     <string name="boot_to_home_menu">Boot to home menu</string>
     <string name="boot_to_home_menu_description">Start the Switch home menu (QLaunch) automatically when EdenBlue opens. Off by default. Requires installed firmware and keys.</string>
     <string name="return_to_home_menu">Return to home menu after a game</string>
     <string name="return_to_home_menu_description">When a game exits, go back to the Switch home menu instead of the EdenBlue games list. Off by default.</string>
     <string name="home_menu_missing_firmware">Firmware is not installed, so the Switch home menu cannot start. Install firmware and keys under Manage EdenBlue data.</string>
-    <string name="sd865_optimizer">Snapdragon 865 optimizer</string>
-    <string name="sd865_optimizer_description">Apply the recommended EdenBlue settings for Snapdragon 865 devices with an Adreno 650 GPU</string>
-    <string name="sd865_optimizer_dialog_message">This applies a tuned profile for the Snapdragon 865 / Adreno 650:\n\n• Handheld mode at native 1x resolution\n• Bilinear scaling, no anti-aliasing, 1x anisotropic filtering\n• Low GPU accuracy, conservative VRAM, immediate V-Sync\n• Asynchronous shaders on, reactive flushing off\n• Extended dynamic state 2 (Turnip friendly), vertex input dynamic state off\n• ASTC decoded on the GPU, NVDEC on the CPU\n• 3 pipeline workers, 4 GB memory layout, Dynarmic auto accuracy\n\nFor best results also install the recommended Mr. Purple Turnip driver.</string>
-    <string name="sd865_optimizer_apply">Apply settings</string>
-    <string name="sd865_optimizer_driver">Install Turnip driver</string>
-    <string name="sd865_optimizer_applied">Snapdragon 865 profile applied</string>
-    <string name="sd865_optimizer_driver_installed">Recommended driver installed and selected: %1$s</string>
-    <string name="sd865_optimizer_driver_failed">Could not install the recommended driver</string>
-    <string name="sd865_optimizer_driver_unsupported">This device does not support custom GPU drivers</string>
-    <string name="sd865_optimizer_setup">Snapdragon 865 tuning</string>
-    <string name="sd865_optimizer_setup_description">EdenBlue is built for Snapdragon 865 devices with the Adreno 650 GPU. Apply the tuned profile now; you can change any setting later.</string>
-    <string name="sd865_driver_fetcher_description">Download a Turnip GPU driver. Mr. Purple T19 is recommended for the Adreno 650.</string>
-    <string name="sd865_optimizer_not_adreno_warning">This device does not report an Adreno GPU. The profile still works but was tuned for the Adreno 650.</string>
+
+    <string name="device_tuning">Device tuning</string>
+    <string name="device_tuning_description">Pick your chip and GPU to apply a matching settings preset and graphics driver</string>
+    <string name="device_tuning_setup_description">Pick your chip to apply a settings preset for your GPU. You can change any setting later.</string>
+    <string name="device_tuning_detected">%1$s - detected</string>
+    <string name="device_tuning_apply">Preset only</string>
+    <string name="device_tuning_apply_with_driver">Preset and driver</string>
+    <string name="device_tuning_applied">Preset applied for %1$s</string>
+    <string name="device_tuning_driver_installed">Driver installed and selected: %1$s</string>
+    <string name="device_tuning_driver_failed">Could not install the driver</string>
+    <string name="device_tuning_driver_unsupported">No custom driver is available for this GPU. Keeping the current driver.</string>
+
+    <string name="import_games">Import games</string>
+    <string name="import_games_description">Move .nsp and .xci files, or ZIP archives containing them, into your ROMs folder</string>
+    <string name="import_games_pick_folder">Choose your ROMs folder. EdenBlue will keep write access to it for imports.</string>
+    <string name="import_games_confirm">Import %1$d selected item(s) into your ROMs folder? Originals are only removed after a full copy.</string>
+    <string name="import_games_remove">Import, remove originals</string>
+    <string name="import_games_keep">Import, keep originals</string>
+    <string name="import_games_running">Importing games…</string>
+    <string name="import_games_result">Imported: %1$d. Already in folder: %2$d. Originals removed: %3$d.</string>
+    <string name="import_games_rejected">Not imported: %1$s</string>
 
     <string name="mod_browser">Mod browser</string>
     <string name="mod_browser_description">Download mods from GitHub and install them for your games</string>

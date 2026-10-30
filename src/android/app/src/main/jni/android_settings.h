@@ -55,7 +55,11 @@ namespace AndroidSettings {
                                                                     Settings::Category::GpuDriver};
 
         Settings::Setting<s32> theme{linkage, 0, "theme", Settings::Category::Android};
+#ifdef EDENBLUE
+        Settings::Setting<s32> theme_mode{linkage, 2, "theme_mode", Settings::Category::Android};
+#else
         Settings::Setting<s32> theme_mode{linkage, -1, "theme_mode", Settings::Category::Android};
+#endif
         #ifdef EDENBLUE
         // EdenBlue ships with the blue theme selected (index 2 in ThemeHelper).
         Settings::Setting<s32> static_theme_color{linkage, 2, "static_theme_color", Settings::Category::Android};

@@ -1,0 +1,70 @@
+# SPDX-FileCopyrightText: Copyright 2026 EdenBlue Project
+# SPDX-License-Identifier: GPL-3.0-or-later
+
+name: EdenBlue Windows
+# Builds the desktop emulator as a portable zip containing EdenBlue.exe.
+
+on:
+  push:
+    tags: [ 'edenblue-*' ]
+  workflow_dispatch:
+
+permissions:
+  contents: write
+
+jobs:
+  build:
+    name: Build EdenBlue.exe
+    runs-on: windows-2022
+    timeout-minutes: 300
+
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - uses: ilammy/msvc-dev-cmd@v1
+        with:
+          arch: x64
+
+      - uses: seanmiddleditch/gha-setup-ninja@v5
+
+      - uses: jakoch/install-vulkan-sdk-action@v1
+        with:
+          vulkan_version: latest
+          install_runtime: false
+          cache: true
+          stripdown: true
+
+      - name: Configure
+        shell: pwsh
+        run: |
+          $env:PATH = "$env:VULKAN_SDK\Bin;$env:PATH"
+          cmake -S . -B D:\b -G Ninja -DCMAKE_BUILD_TYPE=Release -DYUZU_TESTS=OFF -DYUZU_CMD=OFF
+
+      - name: Build
+        shell: pwsh
+        run: |
+          $env:PATH = "$env:VULKAN_SDK\Bin;$env:PATH"
+          cmake --build D:\b --target yuzu
+
+      - name: Package
+        shell: pwsh
+        run: |
+          $version = if ($env:GITHUB_REF_TYPE -eq 'tag') { $env:GITHUB_REF_NAME } else { (git rev-parse --short HEAD) }
+          New-Item -ItemType Directory -Force out\EdenBlue | Out-Null
+          Copy-Item D:\b\bin\* out\EdenBlue -Recurse
+          Rename-Item out\EdenBlue\eden.exe EdenBlue.exe
+          Compress-Archive -Path out\EdenBlue -DestinationPath "out\EdenBlue-$version-windows-x64.zip"
+
+      - uses: actions/upload-artifact@v4
+        with:
+          name: EdenBlue-windows
+          path: out/*.zip
+          if-no-files-found: error
+
+      - name: Publish release
+        if: startsWith(github.ref, 'refs/tags/edenblue-')
+        uses: softprops/action-gh-release@v2
+        with:
+          files: out/*.zip
